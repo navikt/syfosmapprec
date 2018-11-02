@@ -1,13 +1,17 @@
 package no.nav.syfo
 
 import io.ktor.application.Application
+import io.ktor.application.install
+import io.ktor.features.ContentNegotiation
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.jackson.jackson
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import no.nav.syfo.api.registerApprecApi
 import no.nav.syfo.api.registerNaisApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,13 +61,9 @@ suspend fun blockingApplicationLogic(applicationState: ApplicationState) {
 
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {
-        registerNaisApi(
-                readynessCheck = {
-                    applicationState.initialized
-                },
-                livenessCheck = {
-                    applicationState.running
-                }
-        )
+        registerNaisApi(readynessCheck = { applicationState.initialized }, livenessCheck = { applicationState.running })
+        registerApprecApi()
     }
-}
+    install(ContentNegotiation) {
+            jackson {}
+} }
