@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.syfosmapprec")
 
-fun main(args: Array<String>)  = runBlocking(Executors.newFixedThreadPool(2).asCoroutineDispatcher()) {
+fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCoroutineDispatcher()) {
     val env = Environment()
     val applicationState = ApplicationState()
 

@@ -45,7 +45,6 @@ pipeline {
         stage('Create kafka topics') {
             steps {
                 sh 'echo TODO'
-                // TODO
             }
         }
         stage('deploy') {
