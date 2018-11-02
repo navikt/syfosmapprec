@@ -14,10 +14,6 @@ import no.nav.syfo.api.registerNaisApi
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-fun doReadynessCheck(): Boolean {
-    return true
-}
-
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
 
 fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCoroutineDispatcher()) {
@@ -35,7 +31,7 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
 
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {
-        registerNaisApi(readynessCheck = ::doReadynessCheck, livenessCheck = { applicationState.running })
+        registerNaisApi(readynessCheck = { applicationState.initialized }, livenessCheck = { applicationState.running })
         registerApprecApi()
     }
     install(ContentNegotiation) {
