@@ -18,8 +18,12 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+
+fun doReadynessCheck(): Boolean {
+    return true
+}
+
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
-val log: Logger = LoggerFactory.getLogger("no.nav.syfo.syfosmapprec")
 
 fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCoroutineDispatcher()) {
     val env = Environment()
@@ -29,41 +33,17 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
         initRouting(applicationState)
     }.start(wait = false)
 
-    try {
-        val listeners = (1..env.applicationThreads).map {
-            launch {
-                blockingApplicationLogic(applicationState)
-            }
-        }.toList()
-
-        applicationState.initialized = true
-
-        runBlocking {
-            Runtime.getRuntime().addShutdownHook(Thread {
-                applicationServer.stop(10, 10, TimeUnit.SECONDS)
-            })
-
-            Runtime.getRuntime().addShutdownHook(Thread {
-                applicationServer.stop(10, 10, TimeUnit.SECONDS)
-            })
-            runBlocking { listeners.forEach { it.join() } }
-        }
-    } finally {
-        applicationState.running = false
-    }
-}
-
-suspend fun blockingApplicationLogic(applicationState: ApplicationState) {
-    while (applicationState.running) {
-        delay(100)
-    }
+    Runtime.getRuntime().addShutdownHook(Thread {
+        applicationServer.stop(10, 10, TimeUnit.SECONDS)
+    })
 }
 
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {
-        registerNaisApi(readynessCheck = { applicationState.initialized }, livenessCheck = { applicationState.running })
+        registerNaisApi(readynessCheck = ::doReadynessCheck, livenessCheck = { applicationState.running })
         registerApprecApi()
     }
     install(ContentNegotiation) {
-            jackson {}
-} }
+        jackson {}
+    }
+}
