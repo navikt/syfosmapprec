@@ -1,14 +1,22 @@
 buildscript {
     ext.coroutines_version = '1.0.0'
-    ext.kluent_version = '1.39'
     ext.ktor_version = '1.0.0-beta-3'
     ext.logback_version = '1.2.3'
     ext.logstash_logback_encoder = '5.2'
     ext.prometheus_version = '0.5.0'
     ext.spek_version = "2.0.0-alpha.1"
     ext.ibm_mq_version = '9.1.0.0'
-    ext.kafka_version = '2.0.0'
-    ext.kafka_embedded_version = '1.0.0'
+    ext.kith_hodemelding_version = '1.1'
+    ext.kith_apprec_version = '1.1'
+    ext.kluent_version = '1.39'
+    ext.jaxb_basic_ant_version = '1.11.1'
+    ext.jaxb_version = '2.3.0.1'
+    ext.jaxb_api_version = '2.1'
+    ext.javax_activation_version = '1.1.1'
+    ext.fellesformat_version = '1.0'
+    ext.felleformavV1_version = '1.0.0'
+
+    ext.jaxb2SourceDir = file("$buildDir/generated-sources/jaxb2")
 }
 
 plugins {
@@ -31,6 +39,12 @@ repositories {
     maven { url "https://dl.bintray.com/spekframework/spek-dev" }
 }
 
+applicationDefaultJvmArgs = [
+        '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
+        '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}'
+]
+
+
 test {
     useJUnitPlatform {
         includeEngines 'spek2'
@@ -40,7 +54,77 @@ test {
     }
 }
 
+configurations {
+    generateJaxb2
+}
+
+
+class Jaxb2Task extends DefaultTask {
+    @OutputDirectory
+    File outputDir
+    @InputDirectory
+    File sourceDir
+
+    @TaskAction
+    def generateFiles() {
+        outputDir.deleteDir()
+        outputDir.mkdirs()
+        ant.taskdef(
+                'classpath': project.configurations.generateJaxb2.asPath,
+                'name': 'xjc',
+                'classname': 'org.jvnet.jaxb2_commons.xjc.XJC2Task'
+        )
+
+        ant.xjc(
+                'destdir': outputDir,
+                'package': 'no.nav.model.sm2013',
+                'schema': "$sourceDir/HelseOpplysningerArbeidsuforhet_2013-10-01.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
+        )
+        ant.xjc(
+                'destdir': outputDir,
+                'package': 'no.nav.model.kith',
+                'schema': "$sourceDir/kith.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
+        )
+        ant.xjc(
+                'destdir': outputDir,
+                'package': 'no.nav.model.felleskomponent1',
+                'schema': "$sourceDir/felleskomponent1.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
+        )
+
+    }
+}
+
+task generateJaxb2(type: Jaxb2Task) {
+    outputDir = jaxb2SourceDir
+    sourceDir = file("$projectDir/src/main/resources/xsd")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir jaxb2SourceDir
+        }
+    }
+}
+
+compileKotlin {
+    dependsOn generateJaxb2
+    kotlinOptions.jvmTarget = "1.8"
+}
+
 dependencies {
+    generateJaxb2 "com.sun.xml.bind:jaxb-xjc:$jaxb_version"
+    generateJaxb2 "org.glassfish.jaxb:jaxb-runtime:$jaxb_version"
+    generateJaxb2 "javax.xml.bind:jaxb-api:$jaxb_api_version"
+    generateJaxb2 "org.jvnet.jaxb2_commons:jaxb2-basics-ant:$jaxb_basic_ant_version"
+    generateJaxb2 "javax.activation:activation:$javax_activation_version"
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
@@ -51,9 +135,17 @@ dependencies {
 
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "net.logstash.logback:logstash-logback-encoder:$logstash_logback_encoder"
-    
+
     implementation "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
-    implementation "org.apache.kafka:kafka_2.12:$kafka_version"
+
+    implementation "no.nav.syfo.tjenester:kith-apprec:$kith_apprec_version"
+    implementation "no.nav.helse.xml:fellesformat:$felleformavV1_version"
+    implementation "no.nav.syfo.tjenester:kith-hodemelding:$kith_hodemelding_version"
+    implementation "no.nav.syfo.tjenester:fellesformat:$fellesformat_version"
+
+    implementation "org.glassfish.jaxb:jaxb-runtime:$jaxb_version"
+    implementation "javax.xml.bind:jaxb-api:$jaxb_api_version"
+    implementation "javax.activation:activation:$javax_activation_version"
 
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
@@ -63,15 +155,6 @@ dependencies {
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
 }
 
-applicationDefaultJvmArgs = [
-        '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
-        '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
-        '-Djavax.net.ssl.trustStoreType=JKS'
-]
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"

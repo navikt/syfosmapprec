@@ -14,11 +14,12 @@ import org.spekframework.spek2.style.specification.describe
 
 object SelftestSpek : Spek({
     val applicationState = ApplicationState()
+    val env = Environment()
 
     describe("Calling selftest with successful liveness and readyness tests") {
         with(TestApplicationEngine()) {
             start()
-            application.initRouting(applicationState)
+            application.initRouting(applicationState, env)
 
             it("Returns ok on is_alive") {
                 applicationState.running = true

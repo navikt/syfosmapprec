@@ -21,7 +21,7 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
     val applicationState = ApplicationState()
 
     val applicationServer = embeddedServer(Netty, env.applicationPort) {
-        initRouting(applicationState)
+        initRouting(applicationState, env)
     }.start(wait = false)
 
     applicationState.initialized = true
@@ -31,10 +31,10 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
     })
 }
 
-fun Application.initRouting(applicationState: ApplicationState) {
+fun Application.initRouting(applicationState: ApplicationState, env: Environment) {
     routing {
         registerNaisApi(readynessCheck = { applicationState.initialized }, livenessCheck = { applicationState.running })
-        registerApprecApi()
+        registerApprecApi(env)
     }
     install(ContentNegotiation) {
         jackson {}
