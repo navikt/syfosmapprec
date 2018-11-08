@@ -24,6 +24,8 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
         initRouting(applicationState)
     }.start(wait = false)
 
+    applicationState.initialized = true
+
     Runtime.getRuntime().addShutdownHook(Thread {
         applicationServer.stop(10, 10, TimeUnit.SECONDS)
     })
