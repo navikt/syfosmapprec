@@ -9,8 +9,6 @@ import io.ktor.routing.post
 import no.kith.xmlstds.apprec._2004_11_21.XMLAppRec
 import no.nav.helse.sm2013.EIFellesformat
 import no.nav.syfo.Environment
-import no.nav.syfo.apprec.ApprecError
-import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.mapApprecErrorToAppRecCV
 import no.nav.syfo.apprecMarshaller
@@ -26,6 +24,17 @@ import javax.xml.bind.Marshaller
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
+data class ApprecStatus(
+    val v: String,
+    val dn: String
+)
+
+data class ApprecError(
+    val v: String,
+    val dn: String,
+    val s: String
+)
+
 fun Routing.registerApprecApi(env: Environment) {
     post("/v1/apprec") {
         log.info("Got an request to send apprec message")
@@ -36,8 +45,11 @@ fun Routing.registerApprecApi(env: Environment) {
             val receiptQueue = session.createQueue(env.apprecQueue)
             val receiptProducer = session.createProducer(receiptQueue)
             val fellesformat = fellesformatUnmarshaller.unmarshal(call.receiveStream()) as EIFellesformat
+            val apprecStatus = ApprecStatus("2", "Avvist")
+            val apprecError = ApprecError("54", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+                    "2.16.578.1.12.4.1.1.8222")
 
-            sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
+            sendReceipt(session, receiptProducer, fellesformat, apprecStatus, apprecError)
 
             call.respond(OK, true)
     }

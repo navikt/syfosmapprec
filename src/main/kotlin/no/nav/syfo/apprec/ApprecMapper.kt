@@ -14,6 +14,8 @@ import no.kith.xmlstds.msghead._2006_05_24.XMLIdent
 import no.kith.xmlstds.msghead._2006_05_24.XMLMsgHead
 import no.kith.xmlstds.msghead._2006_05_24.XMLOrganisation
 import no.nav.helse.sm2013.EIFellesformat
+import no.nav.syfo.api.ApprecError
+import no.nav.syfo.api.ApprecStatus
 import no.nav.syfo.api.get
 import no.trygdeetaten.xml.eiff._1.XMLEIFellesformat
 import no.trygdeetaten.xml.eiff._1.XMLMottakenhetBlokk
