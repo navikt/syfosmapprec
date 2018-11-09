@@ -1,6 +1,7 @@
 package no.nav.syfo.api
 
 import io.ktor.application.call
+import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.request.receiveStream
 import io.ktor.response.respond
 import io.ktor.routing.Routing
@@ -38,7 +39,7 @@ fun Routing.registerApprecApi(env: Environment) {
 
             sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
 
-            call.respond(mapOf("OK" to true))
+            call.respond(OK, true)
     }
     }
 }
