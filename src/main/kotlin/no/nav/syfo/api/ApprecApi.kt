@@ -34,7 +34,7 @@ fun Routing.registerApprecApi(env: Environment) {
 
             sendReceipt(session, receiptProducer, fellesformat)
 
-            call.respond(OK)
+            call.respond(OK, true)
     }
     }
 }
