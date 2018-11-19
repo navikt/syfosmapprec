@@ -6,7 +6,6 @@ import io.ktor.request.receiveStream
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.post
-import no.nav.helse.sm2013.EIFellesformat
 import no.nav.syfo.Environment
 import no.nav.syfo.apprecMarshaller
 import no.nav.syfo.fellesformatUnmarshaller
@@ -51,8 +50,6 @@ fun sendReceipt(
 }
 
 inline fun <reified T> XMLEIFellesformat.get() = this.any.find { it is T } as T
-
-inline fun <reified T> EIFellesformat.get(): T = any.find { it is T } as T
 
 fun Marshaller.toString(input: Any): String = StringWriter().use {
     marshal(input, it)
