@@ -30,7 +30,7 @@ fun Routing.registerApprecApi(env: Environment) {
             val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
             val receiptQueue = session.createQueue(env.apprecQueue)
             val receiptProducer = session.createProducer(receiptQueue)
-            val fellesformat = fellesformatUnmarshaller.unmarshal(call.receiveStream()) as EIFellesformat
+            val fellesformat = fellesformatUnmarshaller.unmarshal(call.receiveStream()) as XMLEIFellesformat
 
             sendReceipt(session, receiptProducer, fellesformat)
 
@@ -43,7 +43,7 @@ fun Routing.registerApprecApi(env: Environment) {
 fun sendReceipt(
     session: Session,
     receiptProducer: MessageProducer,
-    fellesformat: EIFellesformat
+    fellesformat: XMLEIFellesformat
 ) {
     receiptProducer.send(session.createTextMessage().apply {
         text = apprecMarshaller.toString(fellesformat)
