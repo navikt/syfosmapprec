@@ -12,7 +12,7 @@ import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
 
 val fellesformatJaxBContext: JAXBContext = JAXBContext.newInstance(EIFellesformat::class.java, XMLMsgHead::class.java,
-        XMLMottakenhetBlokk::class.java, HelseOpplysningerArbeidsuforhet::class.java)
+        XMLMottakenhetBlokk::class.java, HelseOpplysningerArbeidsuforhet::class.java, XMLAppRec::class.java)
 val fellesformatUnmarshaller: Unmarshaller = fellesformatJaxBContext.createUnmarshaller()
 
 val apprecJaxBContext: JAXBContext = JAXBContext.newInstance(XMLEIFellesformat::class.java, XMLAppRec::class.java)
