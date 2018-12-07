@@ -35,7 +35,7 @@ fasitResources:
     resourceType: Queue
     propertyMap:
       queueName: MOTTAK_QUEUE_UTSENDING_QUEUENAME
-  - alias: mqGateway03
+  - alias: mqGateway04
     resourceType: QueueManager
   - alias: syfosmapprec_channel
     resourceType: Channel
