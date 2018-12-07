@@ -8,7 +8,7 @@ data class Environment(
     val mqHostname: String = getEnvVar("MQGATEWAY04_HOSTNAME"),
     val mqPort: Int = getEnvVar("MQGATEWAY04_PORT").toInt(),
     val mqGatewayName: String = getEnvVar("MQGATEWAY04_NAME"),
-    val mqChannelName: String = getEnvVar("SYFOSMAPPREC_CHANNEL_NAME", "Q1_SYFOSMAPPREC"),
+    val mqChannelName: String = getEnvVar("SYFOSMAPPREC_CHANNEL_NAME"),
     val mqUsername: String = getEnvVar("SRVAPPSERVER_USERNAME", "srvappserver"),
     val mqPassword: String = getEnvVar("SRVAPPSERVER_PASSWORD", ""),
     val apprecQueue: String = getEnvVar("MOTTAK_QUEUE_UTSENDING_QUEUENAME")

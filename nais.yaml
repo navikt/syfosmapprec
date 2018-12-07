@@ -39,3 +39,5 @@ fasitResources:
     resourceType: QueueManager
   - alias: syfosmapprec_channel
     resourceType: Channel
+  - alias: syfosmapprec_channel
+    resourceType: Channel
