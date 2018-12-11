@@ -29,8 +29,6 @@ resources:
     memory: 128Mi
 fasitResources:
   used:
-  - alias: srvsyfosmapprec
-    resourceType: Credential
   - alias: syfosmapprec_utsending
     resourceType: Queue
     propertyMap:
