@@ -1,110 +1,207 @@
 package no.nav.syfo
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.Application
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.KtorExperimentalAPI
+import io.prometheus.client.hotspot.DefaultExports
+import java.io.File
+import java.io.StringWriter
+import java.time.Duration
+import java.util.Properties
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import javax.jms.MessageProducer
+import javax.jms.Session
+import javax.xml.bind.Marshaller
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
-import no.kith.xmlstds.apprec._2004_11_21.XMLAppRec
-import no.kith.xmlstds.apprec._2004_11_21.XMLInst
+import no.nav.helse.apprecV1.XMLCV
+import no.nav.helse.eiFellesformat.XMLEIFellesformat
+import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
+import no.nav.helse.msgHead.XMLIdent
+import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.api.registerNaisApi
-import no.nav.syfo.util.connectionFactory
-import no.trygdeetaten.xml.eiff._1.XMLEIFellesformat
-import no.trygdeetaten.xml.eiff._1.XMLMottakenhetBlokk
+import no.nav.syfo.apprec.ApprecStatus
+import no.nav.syfo.apprec.createApprec
+import no.nav.syfo.apprec.createApprecError
+import no.nav.syfo.apprec.toApprecCV
+import no.nav.syfo.kafka.loadBaseConfig
+import no.nav.syfo.kafka.toConsumerConfig
+import no.nav.syfo.metrics.APPREC_COUNTER
+import no.nav.syfo.mq.connectionFactory
+import no.nav.syfo.mq.producerForQueue
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
-import java.io.StringReader
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import javax.jms.MessageConsumer
-import javax.jms.Session
-import javax.jms.TextMessage
 
-data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
+data class ApplicationState(var running: Boolean = true, var ready: Boolean = false)
 
-private val log = LoggerFactory.getLogger("no.nav.syfoapprec")
+private val log = LoggerFactory.getLogger("no.nav.syfosmapprec")
 
-fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCoroutineDispatcher()) {
+val objectMapper: ObjectMapper = ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .registerKotlinModule()
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+
+val coroutineContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
+
+@KtorExperimentalAPI
+fun main() = runBlocking(coroutineContext) {
     val env = Environment()
+    val credentials = objectMapper.readValue<VaultCredentials>(File("/var/run/secrets/nais.io/vault/credentials.json"))
     val applicationState = ApplicationState()
 
     val applicationServer = embeddedServer(Netty, env.applicationPort) {
         initRouting(applicationState)
     }.start(wait = false)
 
-    connectionFactory(env).createConnection(env.mqUsername, env.mqPassword).use { connection ->
+    DefaultExports.initialize()
+
+    connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
         connection.start()
 
-        try {
-            val listeners = (1..env.applicationThreads).map {
-                launch {
+        val kafkaBaseConfig = loadBaseConfig(env, credentials)
+        val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
-                    val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-                    val receiptQueue = session.createQueue(env.apprecQueue)
-                    val receiptConsumer = session.createConsumer(receiptQueue)
+        val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+        val receiptProducer = session.producerForQueue(env.apprecQueueName)
 
-                    blockingApplicationLogic(applicationState, receiptConsumer)
-                }
-            }.toList()
+        launchListeners(
+                applicationState,
+                receiptProducer,
+                session,
+                env,
+                consumerProperties)
 
-            applicationState.initialized = true
-
-            Runtime.getRuntime().addShutdownHook(Thread {
-                applicationServer.stop(10, 10, TimeUnit.SECONDS)
-            })
-            runBlocking { listeners.forEach { it.join() } }
-        } finally {
-            applicationState.running = false
-        }
+        Runtime.getRuntime().addShutdownHook(Thread {
+            applicationServer.stop(10, 10, TimeUnit.SECONDS)
+        })
     }
 }
 
-suspend fun blockingApplicationLogic(applicationState: ApplicationState, receiptConsumer: MessageConsumer) {
-    while (applicationState.running) {
-        val message = receiptConsumer.receiveNoWait()
-        if (message == null) {
-            delay(100)
-            continue
-        }
-
-        try {
-            val inputMessageText = when (message) {
-                is TextMessage -> message.text
-                else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
+fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+        launch {
+            try {
+                action()
+            } catch (e: TrackableException) {
+                log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", StructuredArguments.fields(e.loggingMeta), e.cause)
+            } finally {
+                applicationState.running = false
             }
-            val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(inputMessageText)) as XMLEIFellesformat
-            val apprec: XMLAppRec = fellesformat.get()
-            val mottakEnhetBlokk: XMLMottakenhetBlokk = fellesformat.get()
-            val logValues = arrayOf(
-                    StructuredArguments.keyValue("smId", mottakEnhetBlokk.ediLoggId),
-                    StructuredArguments.keyValue("Id", apprec.originalMsgId.id),
-                    StructuredArguments.keyValue("orgNr", apprec.receiver.hcp.inst.extractOrganizationNumber())
-            )
-            val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") { "{}" }
-
-            log.info("Message is read $logKeys", *logValues)
-        } catch (e: Exception) {
-            log.error("Exception caught while handling message", e)
         }
 
+@KtorExperimentalAPI
+suspend fun CoroutineScope.launchListeners(
+    applicationState: ApplicationState,
+    receiptProducer: MessageProducer,
+    session: Session,
+    env: Environment,
+    consumerProperties: Properties
+) {
+    val recievedSykmeldingListeners = 0.until(env.applicationThreads).map {
+        val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
+
+        kafkaconsumerRecievedSykmelding.subscribe(
+                listOf(env.sm2013Apprec)
+        )
+        createListener(applicationState) {
+            blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, receiptProducer, session)
+        }
+    }.toList()
+
+    applicationState.ready = true
+    recievedSykmeldingListeners.forEach { it.join() }
+}
+
+@KtorExperimentalAPI
+suspend fun blockingApplicationLogic(
+    applicationState: ApplicationState,
+    kafkaConsumer: KafkaConsumer<String, String>,
+    receiptProducer: MessageProducer,
+    session: Session
+) {
+    while (applicationState.running) {
+        kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
+            val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
+            val fellesformat = apprec.fellesformat
+
+            val receiverBlock = fellesformat.get<XMLMottakenhetBlokk>()
+            val msgHead = fellesformat.get<XMLMsgHead>()
+
+            val loggingMeta = LoggingMeta(
+                    mottakId = receiverBlock.ediLoggId,
+                    orgNr = extractOrganisationNumberFromSender(fellesformat)?.id,
+                    msgId = msgHead.msgInfo.msgId
+            )
+
+            handleMessage(apprec, receiptProducer, session, loggingMeta)
+        }
         delay(100)
     }
 }
 
+@KtorExperimentalAPI
+suspend fun handleMessage(
+    apprec: Apprec,
+    receiptProducer: MessageProducer,
+    session: Session,
+    loggingMeta: LoggingMeta
+) = coroutineScope {
+    wrapExceptions(loggingMeta) {
+        val fellesformat = XMLEIFellesformat()
+        when (apprec.apprecStatus) {
+            ApprecStatus.avvist -> when (apprec.textToTreater.isNullOrBlank()) {
+                true -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.textToTreater)))
+                else -> sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, apprec.validationResult.ruleHits.map { it.toApprecCV() })
+            }
+            else -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus)
+        }
+    }
+}
+
+fun sendReceipt(
+    session: Session,
+    receiptProducer: MessageProducer,
+    fellesformat: XMLEIFellesformat,
+    apprecStatus: ApprecStatus,
+    apprecErrors: List<XMLCV> = listOf()
+) {
+    APPREC_COUNTER.inc()
+    receiptProducer.send(session.createTextMessage().apply {
+        val apprec = createApprec(fellesformat, apprecStatus, apprecErrors)
+        text = serializeAppRec(apprec)
+    })
+}
+
+fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
+
+fun Marshaller.toString(input: Any): String = StringWriter().use {
+    marshal(input, it)
+    it.toString()
+}
+
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {
-        registerNaisApi(readynessCheck = { applicationState.initialized }, livenessCheck = { applicationState.running })
+        registerNaisApi(readynessCheck = { applicationState.ready }, livenessCheck = { applicationState.running })
     }
 }
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
 
-fun XMLInst.extractOrganizationNumber(): String? =
-        if (typeId.v == "ENH") {
-            id
-        } else {
-            additionalId.find { it.type.v == "ENH" }?.id
+fun extractOrganisationNumberFromSender(fellesformat: XMLEIFellesformat): XMLIdent? =
+        fellesformat.get<XMLMsgHead>().msgInfo.sender.organisation.ident.find {
+            it.typeId.v == "ENH"
         }
