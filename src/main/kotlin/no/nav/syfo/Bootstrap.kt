@@ -12,7 +12,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
 import java.time.Duration
 import java.util.Properties
@@ -31,7 +30,6 @@ import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
-import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
 import no.nav.helse.msgHead.XMLIdent
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.api.registerNaisApi
@@ -136,7 +134,7 @@ suspend fun blockingApplicationLogic(
 ) {
     while (applicationState.running) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
-            val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
+            /*val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
             val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(apprec.fellesformat)) as XMLEIFellesformat
 
             val receiverBlock = fellesformat.get<XMLMottakenhetBlokk>()
@@ -149,6 +147,7 @@ suspend fun blockingApplicationLogic(
             )
 
             handleMessage(apprec, receiptProducer, session, loggingMeta)
+            */
         }
         delay(100)
     }
