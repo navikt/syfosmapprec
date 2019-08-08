@@ -14,7 +14,6 @@ import org.spekframework.spek2.style.specification.describe
 
 object SelftestSpek : Spek({
     val applicationState = ApplicationState()
-    val env = Environment()
 
     describe("Calling selftest with successful liveness and readyness tests") {
         with(TestApplicationEngine()) {
@@ -30,7 +29,7 @@ object SelftestSpek : Spek({
                 }
             }
             it("Returns ok on is_ready") {
-                applicationState.initialized = true
+                applicationState.ready = true
 
                 with(handleRequest(HttpMethod.Get, "/is_ready")) {
                     println(response.status())
@@ -47,7 +46,7 @@ object SelftestSpek : Spek({
                 }
             }
             it("Returns error on failed is_ready") {
-                applicationState.initialized = false
+                applicationState.ready = false
 
                 with(handleRequest(HttpMethod.Get, "/is_ready")) {
                     response.status()?.isSuccess() shouldNotEqual true
