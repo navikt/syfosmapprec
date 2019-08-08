@@ -1,7 +1,7 @@
 [![CircleCI](https://circleci.com/gh/navikt/syfosmapprec.svg?style=svg)](https://circleci.com/gh/navikt/syfosmapprec)
 
 # SYFO Sykmelding Apprec
-This project contains sends the apprec to emottak
+This project sends the apprec to emottak
 
 
 # Technologies used
@@ -23,7 +23,6 @@ Creating a docker image should be as simple as `docker build -t syfosmapprec .`
 ## Contact us
 ### Code/project related questions can be sent to
 * Kevin Sillerud, `kevin.sillerud@nav.no`
-* Anders Østby, `anders.ostby@nav.no`
 * Joakim Kartveit, `joakim.kartveit@nav.no`
 
 ### For NAV employees
