@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments
+import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
@@ -163,14 +164,15 @@ suspend fun handleMessage(
     fellesformat: XMLEIFellesformat
 ) = coroutineScope {
     wrapExceptions(loggingMeta) {
+        log.info("Received a SM2013, {}", fields(loggingMeta))
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
-                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, apprec.validationResult.ruleHits.map { it.toApprecCV() })
+                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, loggingMeta, apprec.validationResult.ruleHits.map { it.toApprecCV() })
             } else {
-                sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.tekstTilSykmelder)))
+                sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
             }
         } else {
-            sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus)
+            sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta)
         }
     }
 }
@@ -180,6 +182,7 @@ fun sendReceipt(
     receiptProducer: MessageProducer,
     fellesformat: XMLEIFellesformat,
     apprecStatus: ApprecStatus,
+    loggingMeta: LoggingMeta,
     apprecErrors: List<XMLCV> = listOf()
 ) {
     APPREC_COUNTER.inc()
@@ -187,6 +190,7 @@ fun sendReceipt(
         val apprec = createApprec(fellesformat, apprecStatus, apprecErrors)
         text = serializeAppRec(apprec)
     })
+    log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
 
 fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
