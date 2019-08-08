@@ -8,5 +8,5 @@ data class Apprec(
     val fellesformat: XMLEIFellesformat,
     val apprecStatus: ApprecStatus,
     val tekstTilSykmelder: String?,
-    val validationResult: ValidationResult
+    val validationResult: ValidationResult?
 )
