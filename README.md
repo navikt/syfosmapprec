@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/navikt/syfosmapprec.svg?style=svg)](https://circleci.com/gh/navikt/syfosmapprec)
+
 # SYFO Sykmelding Apprec
 This project contains sends the apprec to emottak
 
