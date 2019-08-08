@@ -148,7 +148,7 @@ suspend fun blockingApplicationLogic(
                     msgId = msgHead.msgInfo.msgId
             )
 
-            handleMessage(apprec, receiptProducer, session, loggingMeta)
+            handleMessage(apprec, receiptProducer, session, loggingMeta, fellesformat)
         }
         delay(100)
     }
@@ -159,10 +159,10 @@ suspend fun handleMessage(
     apprec: Apprec,
     receiptProducer: MessageProducer,
     session: Session,
-    loggingMeta: LoggingMeta
+    loggingMeta: LoggingMeta,
+    fellesformat: XMLEIFellesformat
 ) = coroutineScope {
     wrapExceptions(loggingMeta) {
-        val fellesformat = XMLEIFellesformat()
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
                 sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, apprec.validationResult.ruleHits.map { it.toApprecCV() })
