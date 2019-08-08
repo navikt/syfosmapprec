@@ -163,8 +163,8 @@ suspend fun handleMessage(
     wrapExceptions(loggingMeta) {
         val fellesformat = XMLEIFellesformat()
         when (apprec.apprecStatus) {
-            ApprecStatus.AVVIST -> when (apprec.teksTilSykmelder.isNullOrBlank()) {
-                true -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.teksTilSykmelder)))
+            ApprecStatus.AVVIST -> when (apprec.tekstTilSykmelder.isNullOrBlank()) {
+                true -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.tekstTilSykmelder)))
                 else -> sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, apprec.validationResult.ruleHits.map { it.toApprecCV() })
             }
             else -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus)
