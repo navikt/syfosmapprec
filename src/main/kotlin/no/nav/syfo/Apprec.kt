@@ -7,6 +7,6 @@ import no.nav.syfo.model.ValidationResult
 data class Apprec(
     val fellesformat: XMLEIFellesformat,
     val apprecStatus: ApprecStatus,
-    val textToTreater: String?,
+    val teksTilSykmelder: String?,
     val validationResult: ValidationResult
 )

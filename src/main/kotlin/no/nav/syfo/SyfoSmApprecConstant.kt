@@ -1,9 +1,9 @@
 package no.nav.syfo
 
 enum class SyfoSmApprecConstant(val string: String) {
-    apprec("APPREC"),
-    apprecVersionV1_0("1.0 2004-11-21"),
-    ebRoleNav("Saksbehandler"),
-    ebServiceSykmelding("Sykmelding"),
-    ebActionSvarmelding("Svar")
+    APPREC("APPREC"),
+    APPRECVERSIONV1_0("1.0 2004-11-21"),
+    EBROLENAV("Saksbehandler"),
+    EBSERVICESYKMELDING("Sykmelding"),
+    EBACTIONSVARMELDING("Svar")
 }

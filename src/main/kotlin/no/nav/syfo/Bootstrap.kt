@@ -77,11 +77,11 @@ fun main() = runBlocking(coroutineContext) {
         val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
         val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-        val receiptProducer = session.producerForQueue(env.apprecQueueName)
+        val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
 
         launchListeners(
                 applicationState,
-                receiptProducer,
+                kvitteringsProducer,
                 session,
                 env,
                 consumerProperties)
@@ -143,7 +143,7 @@ suspend fun blockingApplicationLogic(
 
             val loggingMeta = LoggingMeta(
                     mottakId = receiverBlock.ediLoggId,
-                    orgNr = extractOrganisationNumberFromSender(fellesformat)?.id,
+                    orgNr = hentUtSykmeldersOrganisasjonsNummer(fellesformat)?.id,
                     msgId = msgHead.msgInfo.msgId
             )
 
@@ -163,9 +163,9 @@ suspend fun handleMessage(
     wrapExceptions(loggingMeta) {
         val fellesformat = XMLEIFellesformat()
         when (apprec.apprecStatus) {
-            ApprecStatus.avvist -> when (apprec.textToTreater.isNullOrBlank()) {
-                true -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.textToTreater)))
-                else -> sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, apprec.validationResult.ruleHits.map { it.toApprecCV() })
+            ApprecStatus.AVVIST -> when (apprec.teksTilSykmelder.isNullOrBlank()) {
+                true -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, listOf(createApprecError(apprec.teksTilSykmelder)))
+                else -> sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, apprec.validationResult.ruleHits.map { it.toApprecCV() })
             }
             else -> sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus)
         }
@@ -201,7 +201,7 @@ fun Application.initRouting(applicationState: ApplicationState) {
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
 
-fun extractOrganisationNumberFromSender(fellesformat: XMLEIFellesformat): XMLIdent? =
+fun hentUtSykmeldersOrganisasjonsNummer(fellesformat: XMLEIFellesformat): XMLIdent? =
         fellesformat.get<XMLMsgHead>().msgInfo.sender.organisation.ident.find {
             it.typeId.v == "ENH"
         }

@@ -35,17 +35,17 @@ fun createApprec(fellesformat: XMLEIFellesformat, apprecStatus: ApprecStatus, ap
     val fellesformatApprec = XMLEIFellesformat().apply {
         any.add(XMLMottakenhetBlokk().apply {
             ediLoggId = fellesformat.get<XMLMottakenhetBlokk>().ediLoggId
-            ebRole = SyfoSmApprecConstant.ebRoleNav.string
-            ebService = SyfoSmApprecConstant.ebServiceSykmelding.string
-            ebAction = SyfoSmApprecConstant.ebActionSvarmelding.string
+            ebRole = SyfoSmApprecConstant.EBROLENAV.string
+            ebService = SyfoSmApprecConstant.EBSERVICESYKMELDING.string
+            ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
         }
         )
 
         any.add(apprecToElement(XMLAppRec().apply {
             msgType = XMLCS().apply {
-                v = SyfoSmApprecConstant.apprec.string
+                v = SyfoSmApprecConstant.APPREC.string
             }
-            miGversion = SyfoSmApprecConstant.apprecVersionV1_0.string
+            miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
             genDate = LocalDateTime.now()
             id = fellesformat.get<XMLMottakenhetBlokk>().ediLoggId
 
