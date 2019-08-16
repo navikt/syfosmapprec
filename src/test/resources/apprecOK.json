@@ -3,7 +3,7 @@
   "msgId": "21313-1313-13--1313",
   "msgTypeV": "SYKMELD",
   "msgTypeDN": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
-  "genDate": "2019-08-16T10:31:52.800221",
+  "genDate": "2019-08-16T15:01:42.100156",
   "apprecStatus": "OK",
   "tekstTilSykmelder": null,
   "mottakerOrganisasjon": {
@@ -75,6 +75,5 @@
     ],
     "helsepersonell": null
   },
-  "orgnr": "1234556",
   "validationResult": null
 }

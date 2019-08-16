@@ -52,7 +52,6 @@ fun main() {
                     )
 
             ),
-            orgnr = "1234556",
             validationResult = null
 
     )

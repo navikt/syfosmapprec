@@ -140,7 +140,6 @@ suspend fun blockingApplicationLogic(
 
             val loggingMeta = LoggingMeta(
                     mottakId = apprec.ediloggid,
-                    orgNr = apprec.orgnr,
                     msgId = apprec.msgId
             )
 
