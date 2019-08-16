@@ -12,9 +12,9 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
 import java.time.Duration
+import java.time.LocalDateTime
 import java.util.Properties
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -32,7 +32,6 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
-import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
 import no.nav.helse.msgHead.XMLIdent
 import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.api.registerNaisApi
@@ -138,18 +137,14 @@ suspend fun blockingApplicationLogic(
     while (applicationState.running) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
-            val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(apprec.fellesformat)) as XMLEIFellesformat
-
-            val receiverBlock = fellesformat.get<XMLMottakenhetBlokk>()
-            val msgHead = fellesformat.get<XMLMsgHead>()
 
             val loggingMeta = LoggingMeta(
-                    mottakId = receiverBlock.ediLoggId,
-                    orgNr = hentUtSykmeldersOrganisasjonsNummer(fellesformat)?.id,
-                    msgId = msgHead.msgInfo.msgId
+                    mottakId = apprec.ediloggid,
+                    orgNr = apprec.orgnr,
+                    msgId = apprec.msgId
             )
 
-            handleMessage(apprec, receiptProducer, session, loggingMeta, fellesformat)
+            handleMessage(apprec, receiptProducer, session, loggingMeta)
         }
         delay(100)
     }
@@ -160,19 +155,30 @@ suspend fun handleMessage(
     apprec: Apprec,
     receiptProducer: MessageProducer,
     session: Session,
-    loggingMeta: LoggingMeta,
-    fellesformat: XMLEIFellesformat
+    loggingMeta: LoggingMeta
 ) = coroutineScope {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013, {}", fields(loggingMeta))
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
-                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, loggingMeta, apprec.validationResult.ruleHits.map { it.toApprecCV() })
+                sendReceipt(
+                        session, receiptProducer, apprec.ediloggid,
+                        apprec.msgTypeV, apprec.msgTypeDN,
+                        apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
+                        apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, loggingMeta,
+                        apprec.validationResult.ruleHits.map { it.toApprecCV() })
             } else {
-                sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
+                sendReceipt(session, receiptProducer, apprec.ediloggid,
+                        apprec.msgTypeV, apprec.msgTypeDN,
+                        apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
+                        apprec.mottakerOrganisasjon, ApprecStatus.AVVIST,
+                        loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
             }
         } else {
-            sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta)
+            sendReceipt(session, receiptProducer, apprec.ediloggid,
+                    apprec.msgTypeV, apprec.msgTypeDN,
+                    apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
+                    apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, loggingMeta)
         }
     }
 }
@@ -180,14 +186,23 @@ suspend fun handleMessage(
 fun sendReceipt(
     session: Session,
     receiptProducer: MessageProducer,
-    fellesformat: XMLEIFellesformat,
+    ediloggid: String,
+    infotypeV: String,
+    infotypeDN: String,
+    gendate: LocalDateTime,
+    msgId: String,
+    senderOrganisation: Organisation,
+    receiverOrganisation: Organisation,
     apprecStatus: ApprecStatus,
     loggingMeta: LoggingMeta,
     apprecErrors: List<XMLCV> = listOf()
 ) {
     APPREC_COUNTER.inc()
     receiptProducer.send(session.createTextMessage().apply {
-        val apprec = createApprec(fellesformat, apprecStatus, apprecErrors)
+        val apprec = createApprec(
+                ediloggid, infotypeV, infotypeDN, gendate,
+                msgId, senderOrganisation,
+                receiverOrganisation, apprecStatus, apprecErrors)
         text = serializeAppRec(apprec)
     })
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))

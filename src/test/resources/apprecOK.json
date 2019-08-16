@@ -1,0 +1,80 @@
+{
+  "ediloggid": "1414243424522424mottak.1",
+  "msgId": "21313-1313-13--1313",
+  "msgTypeV": "SYKMELD",
+  "msgTypeDN": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
+  "genDate": "2019-08-16T10:31:52.800221",
+  "apprecStatus": "OK",
+  "tekstTilSykmelder": null,
+  "mottakerOrganisasjon": {
+    "houvedIdent": {
+      "id": "1234634567",
+      "typeId": {
+        "dn": "HER-id",
+        "v": "HER"
+      }
+    },
+    "navn": "Testlegesenteret",
+    "tillegsIdenter": [
+      {
+        "id": "223456789",
+        "typeId": {
+          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
+          "v": "ENH"
+        }
+      }
+    ],
+    "helsepersonell": {
+      "navn": "Per Hansen",
+      "houvedIdent": {
+        "id": "1234356",
+        "typeId": {
+          "dn": "HER-id",
+          "v": "HER"
+        }
+      },
+      "typeId": {
+        "dn": "HER-id",
+        "v": "HER"
+      },
+      "tillegsIdenter": [
+        {
+          "id": "04030350265",
+          "typeId": {
+            "dn": "Fødselsnummer",
+            "v": "FNR"
+          }
+        },
+        {
+          "id": "12343568",
+          "typeId": {
+            "dn": "HPR-nummer",
+            "v": "HPR"
+          }
+        }
+      ]
+    }
+  },
+  "senderOrganisasjon": {
+    "houvedIdent": {
+      "id": "1234556",
+      "typeId": {
+        "dn": "HER-id",
+        "v": "HER"
+      }
+    },
+    "navn": "NAV IKT",
+    "tillegsIdenter": [
+      {
+        "id": "1234556",
+        "typeId": {
+          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
+          "v": "ENH"
+        }
+      }
+    ],
+    "helsepersonell": null
+  },
+  "orgnr": "1234556",
+  "validationResult": null
+}

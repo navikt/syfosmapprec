@@ -12,14 +12,12 @@ import no.nav.helse.apprecV1.XMLInst
 import no.nav.helse.apprecV1.XMLOriginalMsgId
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
-import no.nav.helse.msgHead.XMLCV as MsgHeadCV
-import no.nav.helse.msgHead.XMLHealthcareProfessional
-import no.nav.helse.msgHead.XMLIdent
-import no.nav.helse.msgHead.XMLMsgHead
-import no.nav.helse.msgHead.XMLOrganisation
+import no.nav.syfo.CS
+import no.nav.syfo.Helsepersonell
+import no.nav.syfo.Ident
+import no.nav.syfo.Organisation
 import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.apprecJaxbMarshaller
-import no.nav.syfo.get
 import no.nav.syfo.model.RuleInfo
 import org.w3c.dom.Element
 
@@ -31,10 +29,20 @@ fun apprecToElement(apprec: XMLAppRec): Element {
     return document.documentElement
 }
 
-fun createApprec(fellesformat: XMLEIFellesformat, apprecStatus: ApprecStatus, apprecErrors: List<AppRecCV>): XMLEIFellesformat {
-    val fellesformatApprec = XMLEIFellesformat().apply {
+fun createApprec(
+    ediloggid: String,
+    msgInfotypeV: String,
+    msgInfotypeDN: String,
+    msgInfoGenDate: LocalDateTime,
+    msgId: String,
+    senderOrganisation: Organisation,
+    receiverOrganisation: Organisation,
+    apprecStatus: ApprecStatus,
+    apprecErrors: List<AppRecCV>
+): XMLEIFellesformat {
+        val fellesformatApprec = XMLEIFellesformat().apply {
         any.add(XMLMottakenhetBlokk().apply {
-            ediLoggId = fellesformat.get<XMLMottakenhetBlokk>().ediLoggId
+            ediLoggId = ediloggid
             ebRole = SyfoSmApprecConstant.EBROLENAV.string
             ebService = SyfoSmApprecConstant.EBSERVICESYKMELDING.string
             ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
@@ -47,14 +55,14 @@ fun createApprec(fellesformat: XMLEIFellesformat, apprecStatus: ApprecStatus, ap
             }
             miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
             genDate = LocalDateTime.now()
-            id = fellesformat.get<XMLMottakenhetBlokk>().ediLoggId
+            id = ediloggid
 
             sender = XMLAppRec.Sender().apply {
-                hcp = fellesformat.get<XMLMsgHead>().msgInfo.receiver.organisation.intoHCP()
+                hcp = receiverOrganisation.intoHCP()
             }
 
             receiver = XMLAppRec.Receiver().apply {
-                hcp = fellesformat.get<XMLMsgHead>().msgInfo.sender.organisation.intoHCP()
+                hcp = senderOrganisation.intoHCP()
             }
 
             status = XMLCS().apply {
@@ -64,11 +72,11 @@ fun createApprec(fellesformat: XMLEIFellesformat, apprecStatus: ApprecStatus, ap
 
             originalMsgId = XMLOriginalMsgId().apply {
                 msgType = XMLCS().apply {
-                    v = fellesformat.get<XMLMsgHead>().msgInfo.type.v
-                    dn = fellesformat.get<XMLMsgHead>().msgInfo.type.dn
+                    v = msgInfotypeV
+                    dn = msgInfotypeDN
                 }
-                issueDate = fellesformat.get<XMLMsgHead>().msgInfo.genDate
-                id = fellesformat.get<XMLMsgHead>().msgInfo.msgId
+                issueDate = msgInfoGenDate
+                id = msgId
             }
 
             error.addAll(apprecErrors)
@@ -78,45 +86,49 @@ fun createApprec(fellesformat: XMLEIFellesformat, apprecStatus: ApprecStatus, ap
     return fellesformatApprec
 }
 
-fun XMLHealthcareProfessional.intoHCPerson(): XMLHCPerson = XMLHCPerson().apply {
-    name = if (middleName == null) "$familyName $givenName" else "$familyName $givenName $middleName"
-    id = ident.first().id
-    typeId = ident.first().typeId.intoCS()
-    additionalId += ident.drop(1)
+fun Helsepersonell.intoHCPerson(): XMLHCPerson = XMLHCPerson().apply {
+    name = navn
+    id = id
+    typeId = houvedIdent.typeId.intoXMLCS()
+    if (!tillegsIdenter.isNullOrEmpty()) {
+        additionalId += tillegsIdenter
+    }
 }
 
-fun XMLOrganisation.intoHCP(): XMLHCP = XMLHCP().apply {
-    inst = ident.first().intoInst().apply {
-        name = organisationName
-        additionalId += ident.drop(1)
+fun Organisation.intoHCP(): XMLHCP = XMLHCP().apply {
+    inst = houvedIdent.intoInst().apply {
+        name = navn
+        if (!tillegsIdenter.isNullOrEmpty()) {
+            additionalId += tillegsIdenter
+        }
 
-        if (healthcareProfessional != null) {
-            hcPerson += healthcareProfessional.intoHCPerson()
+        if (helsepersonell != null) {
+            hcPerson += helsepersonell.intoHCPerson()
         }
     }
 }
 
-fun XMLIdent.intoInst(): XMLInst {
+fun Ident.intoInst(): XMLInst {
     val ident = this
     return XMLInst().apply {
         id = ident.id
-        typeId = ident.typeId.intoCS()
+        typeId = ident.typeId.intoXMLCS()
     }
 }
 
-fun MsgHeadCV.intoCS(): XMLCS {
-    val msgHeadCV = this
+fun CS.intoXMLCS(): XMLCS {
+    val cs = this
     return XMLCS().apply {
-        dn = msgHeadCV.dn
-        v = msgHeadCV.v
+        dn = cs.dn
+        v = cs.v
     }
 }
 
-operator fun MutableList<XMLAdditionalId>.plusAssign(idents: Iterable<XMLIdent>) {
-    this.addAll(idents.map { it.intoAdditionalId() })
+operator fun MutableList<XMLAdditionalId>.plusAssign(identer: Iterable<Ident>) {
+    this.addAll(identer.map { it.intoAdditionalId() })
 }
 
-fun XMLIdent.intoAdditionalId(): XMLAdditionalId {
+fun Ident.intoAdditionalId(): XMLAdditionalId {
     val ident = this
     return XMLAdditionalId().apply {
         id = ident.id
