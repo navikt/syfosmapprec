@@ -3,9 +3,29 @@
   "msgId": "21313-1313-13--1313",
   "msgTypeV": "SYKMELD",
   "msgTypeDN": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
-  "genDate": "2019-08-16T15:01:42.100156",
+  "genDate": "2019-08-16T16:55:16.908622",
   "apprecStatus": "OK",
   "tekstTilSykmelder": null,
+  "senderOrganisasjon": {
+    "houvedIdent": {
+      "id": "1234556",
+      "typeId": {
+        "dn": "HER-id",
+        "v": "HER"
+      }
+    },
+    "navn": "NAV IKT",
+    "tillegsIdenter": [
+      {
+        "id": "1234556",
+        "typeId": {
+          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
+          "v": "ENH"
+        }
+      }
+    ],
+    "helsepersonell": null
+  },
   "mottakerOrganisasjon": {
     "houvedIdent": {
       "id": "1234634567",
@@ -54,26 +74,6 @@
         }
       ]
     }
-  },
-  "senderOrganisasjon": {
-    "houvedIdent": {
-      "id": "1234556",
-      "typeId": {
-        "dn": "HER-id",
-        "v": "HER"
-      }
-    },
-    "navn": "NAV IKT",
-    "tillegsIdenter": [
-      {
-        "id": "1234556",
-        "typeId": {
-          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
-          "v": "ENH"
-        }
-      }
-    ],
-    "helsepersonell": null
   },
   "validationResult": null
 }

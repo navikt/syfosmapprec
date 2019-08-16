@@ -88,45 +88,45 @@ object ApprecMapperSpek : Spek({
             ff.get<XMLAppRec>().id shouldEqual apprec.ediloggid
         }
         it("Sets senders appRec sender institution name to receiver organizationName") {
-            ff.get<XMLAppRec>().sender.hcp.inst.name shouldEqual apprec.mottakerOrganisasjon.navn
+            ff.get<XMLAppRec>().sender.hcp.inst.name shouldEqual apprec.senderOrganisasjon.navn
         }
         it("Sets senders appRec institution id to first organization ident id") {
-            ff.get<XMLAppRec>().sender.hcp.inst.id shouldEqual apprec.mottakerOrganisasjon.houvedIdent.id
+            ff.get<XMLAppRec>().sender.hcp.inst.id shouldEqual apprec.senderOrganisasjon.houvedIdent.id
         }
         it("Sets senders appRec institution typeId dn to first organization ident typeId dn") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.dn shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.dn
+                    apprec.senderOrganisasjon.houvedIdent.typeId.dn
         }
         it("Sets senders appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.v shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.v
+                    apprec.senderOrganisasjon.houvedIdent.typeId.v
         }
         it("Sets senders first additional appRec institution id to second organization ident id") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().id shouldEqual
-                    apprec.mottakerOrganisasjon.tillegsIdenter?.first()?.id
+                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.id
         }
         it("Sets senders first additional appRec institution typeId dn to second organization ident typeId dn") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().type.dn shouldEqual
-                    apprec.mottakerOrganisasjon.tillegsIdenter?.first()?.typeId?.dn
+                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.typeId?.dn
         }
         it("Sets senders first additional appRec institution typeId v to second organization ident typeId v") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().type.v shouldEqual
-                    apprec.mottakerOrganisasjon.tillegsIdenter?.first()?.typeId?.v
+                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.typeId?.v
         }
         it("Sets receivers appRec institution name to sender organizationName") {
             ff.get<XMLAppRec>().receiver.hcp.inst.name shouldEqual
-                    apprec.senderOrganisasjon.navn
+                    apprec.mottakerOrganisasjon.navn
         }
         it("Sets receivers appRec institution id to first sender organization ident id") {
-            ff.get<XMLAppRec>().receiver.hcp.inst.id shouldEqual apprec.senderOrganisasjon.houvedIdent.id
+            ff.get<XMLAppRec>().receiver.hcp.inst.id shouldEqual apprec.mottakerOrganisasjon.houvedIdent.id
         }
         it("Sets receivers appRec institution typeId dn to first sender organization ident typeId dn") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.dn shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.dn
+                    apprec.mottakerOrganisasjon.houvedIdent.typeId.dn
         }
         it("Sets receivers appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.v shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.v
+                    apprec.mottakerOrganisasjon.houvedIdent.typeId.v
         }
 
         it("Sets appRec status dn to OK") {

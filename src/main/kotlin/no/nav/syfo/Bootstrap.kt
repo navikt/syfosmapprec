@@ -191,7 +191,7 @@ fun sendReceipt(
     gendate: LocalDateTime,
     msgId: String,
     senderOrganisation: Organisation,
-    receiverOrganisation: Organisation,
+    mottakerOrganisation: Organisation,
     apprecStatus: ApprecStatus,
     loggingMeta: LoggingMeta,
     apprecErrors: List<XMLCV> = listOf()
@@ -201,7 +201,7 @@ fun sendReceipt(
         val apprec = createApprec(
                 ediloggid, infotypeV, infotypeDN, gendate,
                 msgId, senderOrganisation,
-                receiverOrganisation, apprecStatus, apprecErrors)
+                mottakerOrganisation, apprecStatus, apprecErrors)
         text = serializeAppRec(apprec)
     })
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))

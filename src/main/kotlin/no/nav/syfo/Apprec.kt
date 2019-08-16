@@ -12,8 +12,8 @@ data class Apprec(
     val genDate: LocalDateTime,
     val apprecStatus: ApprecStatus,
     val tekstTilSykmelder: String? = null,
-    val mottakerOrganisasjon: Organisation,
     val senderOrganisasjon: Organisation,
+    val mottakerOrganisasjon: Organisation,
     val validationResult: ValidationResult?
 )
 

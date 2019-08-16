@@ -36,7 +36,7 @@ fun createApprec(
     msgInfoGenDate: LocalDateTime,
     msgId: String,
     senderOrganisation: Organisation,
-    receiverOrganisation: Organisation,
+    mottakerOrganisation: Organisation,
     apprecStatus: ApprecStatus,
     apprecErrors: List<AppRecCV>
 ): XMLEIFellesformat {
@@ -58,11 +58,11 @@ fun createApprec(
             id = ediloggid
 
             sender = XMLAppRec.Sender().apply {
-                hcp = receiverOrganisation.intoHCP()
+                hcp = senderOrganisation.intoHCP()
             }
 
             receiver = XMLAppRec.Receiver().apply {
-                hcp = senderOrganisation.intoHCP()
+                hcp = mottakerOrganisation.intoHCP()
             }
 
             status = XMLCS().apply {
