@@ -165,7 +165,7 @@ suspend fun handleMessage(
                         loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
             }
         } else {
-            sendReceipt(session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta)
+            sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
         }
     }
 }
