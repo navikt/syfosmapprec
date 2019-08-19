@@ -123,6 +123,11 @@ object ApprecMapperSpek : Spek({
                     apprec.mottakerOrganisasjon.houvedIdent.typeId.verdi
         }
 
+        it("Sets receivers appRec id to first organization ident id") {
+            ff.get<XMLAppRec>().receiver.hcp.inst.hcPerson.first().id shouldEqual
+                    apprec.mottakerOrganisasjon.helsepersonell?.houvedIdent?.id
+        }
+
         it("Sets appRec status dn to OK") {
             ff.get<XMLAppRec>().status.dn shouldEqual ApprecStatus.OK.dn
         }
