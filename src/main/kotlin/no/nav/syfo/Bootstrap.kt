@@ -12,7 +12,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
 import java.time.Duration
 import java.util.Properties
@@ -32,9 +31,6 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
-import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
-import no.nav.helse.msgHead.XMLIdent
-import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
@@ -138,18 +134,13 @@ suspend fun blockingApplicationLogic(
     while (applicationState.running) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
-            val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(apprec.fellesformat)) as XMLEIFellesformat
-
-            val receiverBlock = fellesformat.get<XMLMottakenhetBlokk>()
-            val msgHead = fellesformat.get<XMLMsgHead>()
 
             val loggingMeta = LoggingMeta(
-                    mottakId = receiverBlock.ediLoggId,
-                    orgNr = hentUtSykmeldersOrganisasjonsNummer(fellesformat)?.id,
-                    msgId = msgHead.msgInfo.msgId
+                    mottakId = apprec.ediloggid,
+                    msgId = apprec.msgId
             )
 
-            handleMessage(apprec, receiptProducer, session, loggingMeta, fellesformat)
+            handleMessage(apprec, receiptProducer, session, loggingMeta)
         }
         delay(100)
     }
@@ -160,19 +151,21 @@ suspend fun handleMessage(
     apprec: Apprec,
     receiptProducer: MessageProducer,
     session: Session,
-    loggingMeta: LoggingMeta,
-    fellesformat: XMLEIFellesformat
+    loggingMeta: LoggingMeta
 ) = coroutineScope {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013, {}", fields(loggingMeta))
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
-                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.AVVIST, loggingMeta, apprec.validationResult.ruleHits.map { it.toApprecCV() })
+                sendReceipt(
+                        session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta,
+                        apprec.validationResult.ruleHits.map { it.toApprecCV() })
             } else {
-                sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
+                sendReceipt(session, receiptProducer, apprec, ApprecStatus.AVVIST,
+                        loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
             }
         } else {
-            sendReceipt(session, receiptProducer, fellesformat, apprec.apprecStatus, loggingMeta)
+            sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
         }
     }
 }
@@ -180,15 +173,17 @@ suspend fun handleMessage(
 fun sendReceipt(
     session: Session,
     receiptProducer: MessageProducer,
-    fellesformat: XMLEIFellesformat,
+    apprec: Apprec,
     apprecStatus: ApprecStatus,
     loggingMeta: LoggingMeta,
     apprecErrors: List<XMLCV> = listOf()
 ) {
+    val ediloggid = apprec.ediloggid
+
     APPREC_COUNTER.inc()
     receiptProducer.send(session.createTextMessage().apply {
-        val apprec = createApprec(fellesformat, apprecStatus, apprecErrors)
-        text = serializeAppRec(apprec)
+        val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
+        text = serializeAppRec(apprecFellesformat)
     })
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
@@ -207,8 +202,3 @@ fun Application.initRouting(applicationState: ApplicationState) {
 }
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
-
-fun hentUtSykmeldersOrganisasjonsNummer(fellesformat: XMLEIFellesformat): XMLIdent? =
-        fellesformat.get<XMLMsgHead>().msgInfo.sender.organisation.ident.find {
-            it.typeId.v == "ENH"
-        }
