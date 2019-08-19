@@ -12,9 +12,10 @@ import no.nav.helse.apprecV1.XMLInst
 import no.nav.helse.apprecV1.XMLOriginalMsgId
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
-import no.nav.syfo.CS
+import no.nav.syfo.Apprec
 import no.nav.syfo.Helsepersonell
 import no.nav.syfo.Ident
+import no.nav.syfo.Kodeverdier
 import no.nav.syfo.Organisation
 import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.apprecJaxbMarshaller
@@ -31,15 +32,16 @@ fun apprecToElement(apprec: XMLAppRec): Element {
 
 fun createApprec(
     ediloggid: String,
-    msgInfotypeV: String,
-    msgInfotypeDN: String,
-    msgInfoGenDate: LocalDateTime,
-    msgId: String,
-    senderOrganisation: Organisation,
-    mottakerOrganisation: Organisation,
+    apprec: Apprec,
     apprecStatus: ApprecStatus,
     apprecErrors: List<AppRecCV>
 ): XMLEIFellesformat {
+        val msgInfotypeVerdi = apprec.msgTypeVerdi
+        val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
+        val msgInfoGenDate = apprec.genDate
+        val msgId = apprec.msgId
+        val senderOrganisation = apprec.senderOrganisasjon
+        val mottakerOrganisation = apprec.mottakerOrganisasjon
         val fellesformatApprec = XMLEIFellesformat().apply {
         any.add(XMLMottakenhetBlokk().apply {
             ediLoggId = ediloggid
@@ -72,8 +74,8 @@ fun createApprec(
 
             originalMsgId = XMLOriginalMsgId().apply {
                 msgType = XMLCS().apply {
-                    v = msgInfotypeV
-                    dn = msgInfotypeDN
+                    v = msgInfotypeVerdi
+                    dn = msgInfotypeBeskrivelse
                 }
                 issueDate = msgInfoGenDate
                 id = msgId
@@ -90,16 +92,16 @@ fun Helsepersonell.intoHCPerson(): XMLHCPerson = XMLHCPerson().apply {
     name = navn
     id = id
     typeId = houvedIdent.typeId.intoXMLCS()
-    if (!tillegsIdenter.isNullOrEmpty()) {
-        additionalId += tillegsIdenter
+    if (!tilleggsIdenter.isNullOrEmpty()) {
+        additionalId += tilleggsIdenter
     }
 }
 
 fun Organisation.intoHCP(): XMLHCP = XMLHCP().apply {
     inst = houvedIdent.intoInst().apply {
         name = navn
-        if (!tillegsIdenter.isNullOrEmpty()) {
-            additionalId += tillegsIdenter
+        if (!tilleggsIdenter.isNullOrEmpty()) {
+            additionalId += tilleggsIdenter
         }
 
         if (helsepersonell != null) {
@@ -116,11 +118,11 @@ fun Ident.intoInst(): XMLInst {
     }
 }
 
-fun CS.intoXMLCS(): XMLCS {
+fun Kodeverdier.intoXMLCS(): XMLCS {
     val cs = this
     return XMLCS().apply {
-        dn = cs.dn
-        v = cs.v
+        dn = cs.beskrivelse
+        v = cs.verdi
     }
 }
 
@@ -133,8 +135,8 @@ fun Ident.intoAdditionalId(): XMLAdditionalId {
     return XMLAdditionalId().apply {
         id = ident.id
         type = XMLCS().apply {
-            dn = ident.typeId.dn
-            v = ident.typeId.v
+            dn = ident.typeId.beskrivelse
+            v = ident.typeId.verdi
         }
     }
 }

@@ -20,10 +20,7 @@ object ApprecMarshallerSpek : Spek({
     val apprec: Apprec = objectMapper.readValue(Apprec::class.java.getResourceAsStream("/apprecOK.json").readBytes().toString(Charsets.UTF_8))
 
     describe("Serializing a apprec") {
-        val apprecXML = createApprec(apprec.ediloggid,
-                apprec.msgTypeV, apprec.msgTypeDN,
-                apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                apprec.mottakerOrganisasjon, ApprecStatus.OK, listOf())
+        val apprecXML = createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf())
         val serializedApprec = serializeAppRec(apprecXML)
 
         it("Results in a XML without namespace prefixes") {

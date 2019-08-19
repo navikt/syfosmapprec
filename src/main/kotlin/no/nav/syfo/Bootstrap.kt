@@ -14,7 +14,6 @@ import io.prometheus.client.hotspot.DefaultExports
 import java.io.File
 import java.io.StringWriter
 import java.time.Duration
-import java.time.LocalDateTime
 import java.util.Properties
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -32,8 +31,6 @@ import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
-import no.nav.helse.msgHead.XMLIdent
-import no.nav.helse.msgHead.XMLMsgHead
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
@@ -161,23 +158,14 @@ suspend fun handleMessage(
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
                 sendReceipt(
-                        session, receiptProducer, apprec.ediloggid,
-                        apprec.msgTypeV, apprec.msgTypeDN,
-                        apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                        apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, loggingMeta,
+                        session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta,
                         apprec.validationResult.ruleHits.map { it.toApprecCV() })
             } else {
-                sendReceipt(session, receiptProducer, apprec.ediloggid,
-                        apprec.msgTypeV, apprec.msgTypeDN,
-                        apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                        apprec.mottakerOrganisasjon, ApprecStatus.AVVIST,
+                sendReceipt(session, receiptProducer, apprec, ApprecStatus.AVVIST,
                         loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
             }
         } else {
-            sendReceipt(session, receiptProducer, apprec.ediloggid,
-                    apprec.msgTypeV, apprec.msgTypeDN,
-                    apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                    apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, loggingMeta)
+            sendReceipt(session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta)
         }
     }
 }
@@ -185,24 +173,17 @@ suspend fun handleMessage(
 fun sendReceipt(
     session: Session,
     receiptProducer: MessageProducer,
-    ediloggid: String,
-    infotypeV: String,
-    infotypeDN: String,
-    gendate: LocalDateTime,
-    msgId: String,
-    senderOrganisation: Organisation,
-    mottakerOrganisation: Organisation,
+    apprec: Apprec,
     apprecStatus: ApprecStatus,
     loggingMeta: LoggingMeta,
     apprecErrors: List<XMLCV> = listOf()
 ) {
+    val ediloggid = apprec.ediloggid
+
     APPREC_COUNTER.inc()
     receiptProducer.send(session.createTextMessage().apply {
-        val apprec = createApprec(
-                ediloggid, infotypeV, infotypeDN, gendate,
-                msgId, senderOrganisation,
-                mottakerOrganisation, apprecStatus, apprecErrors)
-        text = serializeAppRec(apprec)
+        val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
+        text = serializeAppRec(apprecFellesformat)
     })
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
@@ -221,8 +202,3 @@ fun Application.initRouting(applicationState: ApplicationState) {
 }
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
-
-fun hentUtSykmeldersOrganisasjonsNummer(fellesformat: XMLEIFellesformat): XMLIdent? =
-        fellesformat.get<XMLMsgHead>().msgInfo.sender.organisation.ident.find {
-            it.typeId.v == "ENH"
-        }

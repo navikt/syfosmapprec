@@ -1,26 +1,26 @@
 {
   "ediloggid": "1414243424522424mottak.1",
   "msgId": "21313-1313-13--1313",
-  "msgTypeV": "SYKMELD",
-  "msgTypeDN": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
-  "genDate": "2019-08-16T16:55:16.908622",
+  "msgTypeVerdi": "SYKMELD",
+  "msgTypeBeskrivelse": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
+  "genDate": "2019-08-19T10:07:17.384764",
   "apprecStatus": "OK",
   "tekstTilSykmelder": null,
   "senderOrganisasjon": {
     "houvedIdent": {
       "id": "1234556",
       "typeId": {
-        "dn": "HER-id",
-        "v": "HER"
+        "beskrivelse": "HER-id",
+        "verdi": "HER"
       }
     },
     "navn": "NAV IKT",
-    "tillegsIdenter": [
+    "tilleggsIdenter": [
       {
         "id": "1234556",
         "typeId": {
-          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
-          "v": "ENH"
+          "beskrivelse": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
+          "verdi": "ENH"
         }
       }
     ],
@@ -30,17 +30,17 @@
     "houvedIdent": {
       "id": "1234634567",
       "typeId": {
-        "dn": "HER-id",
-        "v": "HER"
+        "beskrivelse": "HER-id",
+        "verdi": "HER"
       }
     },
     "navn": "Testlegesenteret",
-    "tillegsIdenter": [
+    "tilleggsIdenter": [
       {
         "id": "223456789",
         "typeId": {
-          "dn": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
-          "v": "ENH"
+          "beskrivelse": "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
+          "verdi": "ENH"
         }
       }
     ],
@@ -49,27 +49,27 @@
       "houvedIdent": {
         "id": "1234356",
         "typeId": {
-          "dn": "HER-id",
-          "v": "HER"
+          "beskrivelse": "HER-id",
+          "verdi": "HER"
         }
       },
       "typeId": {
-        "dn": "HER-id",
-        "v": "HER"
+        "beskrivelse": "HER-id",
+        "verdi": "HER"
       },
-      "tillegsIdenter": [
+      "tilleggsIdenter": [
         {
           "id": "04030350265",
           "typeId": {
-            "dn": "Fødselsnummer",
-            "v": "FNR"
+            "beskrivelse": "Fødselsnummer",
+            "verdi": "FNR"
           }
         },
         {
           "id": "12343568",
           "typeId": {
-            "dn": "HPR-nummer",
-            "v": "HPR"
+            "beskrivelse": "HPR-nummer",
+            "verdi": "HPR"
           }
         }
       ]

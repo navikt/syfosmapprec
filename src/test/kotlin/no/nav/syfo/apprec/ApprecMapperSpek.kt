@@ -36,10 +36,7 @@ object ApprecMapperSpek : Spek({
     describe("Duplicate AppRec") {
         val apprecErrorDuplicate = createApprecError("Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.")
         val ff = marshalAndUnmarshal(createApprec(
-                apprec.ediloggid,
-                apprec.msgTypeV, apprec.msgTypeDN,
-                apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, listOf()))
+                apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf()))
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         it("Has the same ediLoggId as the source") {
             ff.get<XMLMottakenhetBlokk>().ediLoggId shouldEqual apprec.ediloggid
@@ -59,10 +56,7 @@ object ApprecMapperSpek : Spek({
     }
 
     describe("OK AppRec") {
-        val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid,
-                apprec.msgTypeV, apprec.msgTypeDN,
-                apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                apprec.mottakerOrganisasjon, ApprecStatus.OK, listOf()))
+        val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         it("Sets ebRole to ebRoleNav") {
             ff.get<XMLMottakenhetBlokk>().ebRole shouldEqual SyfoSmApprecConstant.EBROLENAV.string
         }
@@ -95,23 +89,23 @@ object ApprecMapperSpek : Spek({
         }
         it("Sets senders appRec institution typeId dn to first organization ident typeId dn") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.dn shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.dn
+                    apprec.senderOrganisasjon.houvedIdent.typeId.beskrivelse
         }
         it("Sets senders appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.v shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.v
+                    apprec.senderOrganisasjon.houvedIdent.typeId.verdi
         }
         it("Sets senders first additional appRec institution id to second organization ident id") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().id shouldEqual
-                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.id
+                    apprec.senderOrganisasjon.tilleggsIdenter?.first()?.id
         }
         it("Sets senders first additional appRec institution typeId dn to second organization ident typeId dn") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().type.dn shouldEqual
-                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.typeId?.dn
+                    apprec.senderOrganisasjon.tilleggsIdenter?.first()?.typeId?.beskrivelse
         }
         it("Sets senders first additional appRec institution typeId v to second organization ident typeId v") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().type.v shouldEqual
-                    apprec.senderOrganisasjon.tillegsIdenter?.first()?.typeId?.v
+                    apprec.senderOrganisasjon.tilleggsIdenter?.first()?.typeId?.verdi
         }
         it("Sets receivers appRec institution name to sender organizationName") {
             ff.get<XMLAppRec>().receiver.hcp.inst.name shouldEqual
@@ -122,11 +116,11 @@ object ApprecMapperSpek : Spek({
         }
         it("Sets receivers appRec institution typeId dn to first sender organization ident typeId dn") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.dn shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.dn
+                    apprec.mottakerOrganisasjon.houvedIdent.typeId.beskrivelse
         }
         it("Sets receivers appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.v shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.v
+                    apprec.mottakerOrganisasjon.houvedIdent.typeId.verdi
         }
 
         it("Sets appRec status dn to OK") {
@@ -150,10 +144,7 @@ object ApprecMapperSpek : Spek({
     }
     describe("Error AppRec") {
         val apprecErrorinvalidFnrSize = createApprecError("Fødselsnummer/D-nummer kan passerer ikke modulus 11")
-        val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid,
-                apprec.msgTypeV, apprec.msgTypeDN,
-                apprec.genDate, apprec.msgId, apprec.senderOrganisasjon,
-                apprec.mottakerOrganisasjon, ApprecStatus.AVVIST, listOf()))
+        val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf()))
         ff.get<XMLAppRec>().error.add(apprecErrorinvalidFnrSize)
         it("Sets appRec error dn to duplicate") {
             ff.get<XMLAppRec>().error.first().dn shouldEqual apprecErrorinvalidFnrSize.dn
