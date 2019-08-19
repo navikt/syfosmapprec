@@ -90,15 +90,15 @@ fun createApprec(
 
 fun Helsepersonell.intoHCPerson(): XMLHCPerson = XMLHCPerson().apply {
     name = navn
-    id = houvedIdent.id
-    typeId = houvedIdent.typeId.intoXMLCS()
+    id = hovedIdent.id
+    typeId = hovedIdent.typeId.intoXMLCS()
     if (!tilleggsIdenter.isNullOrEmpty()) {
         additionalId += tilleggsIdenter
     }
 }
 
 fun Organisation.intoHCP(): XMLHCP = XMLHCP().apply {
-    inst = houvedIdent.intoInst().apply {
+    inst = hovedIdent.intoInst().apply {
         name = navn
         if (!tilleggsIdenter.isNullOrEmpty()) {
             additionalId += tilleggsIdenter

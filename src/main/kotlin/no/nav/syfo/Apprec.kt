@@ -18,7 +18,7 @@ data class Apprec(
 )
 
 data class Organisation(
-    val houvedIdent: Ident,
+    val hovedIdent: Ident,
     val navn: String,
     val tilleggsIdenter: List<Ident>? = listOf(),
     val helsepersonell: Helsepersonell? = null
@@ -26,7 +26,7 @@ data class Organisation(
 
 data class Helsepersonell(
     val navn: String,
-    val houvedIdent: Ident,
+    val hovedIdent: Ident,
     val typeId: Kodeverdier,
     val tilleggsIdenter: List<Ident>?
 

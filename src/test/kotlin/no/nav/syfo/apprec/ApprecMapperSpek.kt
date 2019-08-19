@@ -85,15 +85,15 @@ object ApprecMapperSpek : Spek({
             ff.get<XMLAppRec>().sender.hcp.inst.name shouldEqual apprec.senderOrganisasjon.navn
         }
         it("Sets senders appRec institution id to first organization ident id") {
-            ff.get<XMLAppRec>().sender.hcp.inst.id shouldEqual apprec.senderOrganisasjon.houvedIdent.id
+            ff.get<XMLAppRec>().sender.hcp.inst.id shouldEqual apprec.senderOrganisasjon.hovedIdent.id
         }
         it("Sets senders appRec institution typeId dn to first organization ident typeId dn") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.dn shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.beskrivelse
+                    apprec.senderOrganisasjon.hovedIdent.typeId.beskrivelse
         }
         it("Sets senders appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().sender.hcp.inst.typeId.v shouldEqual
-                    apprec.senderOrganisasjon.houvedIdent.typeId.verdi
+                    apprec.senderOrganisasjon.hovedIdent.typeId.verdi
         }
         it("Sets senders first additional appRec institution id to second organization ident id") {
             ff.get<XMLAppRec>().sender.hcp.inst.additionalId.first().id shouldEqual
@@ -112,20 +112,20 @@ object ApprecMapperSpek : Spek({
                     apprec.mottakerOrganisasjon.navn
         }
         it("Sets receivers appRec institution id to first sender organization ident id") {
-            ff.get<XMLAppRec>().receiver.hcp.inst.id shouldEqual apprec.mottakerOrganisasjon.houvedIdent.id
+            ff.get<XMLAppRec>().receiver.hcp.inst.id shouldEqual apprec.mottakerOrganisasjon.hovedIdent.id
         }
         it("Sets receivers appRec institution typeId dn to first sender organization ident typeId dn") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.dn shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.beskrivelse
+                    apprec.mottakerOrganisasjon.hovedIdent.typeId.beskrivelse
         }
         it("Sets receivers appRec institution typeId v to first organization ident typeId v") {
             ff.get<XMLAppRec>().receiver.hcp.inst.typeId.v shouldEqual
-                    apprec.mottakerOrganisasjon.houvedIdent.typeId.verdi
+                    apprec.mottakerOrganisasjon.hovedIdent.typeId.verdi
         }
 
         it("Sets receivers appRec id to first organization ident id") {
             ff.get<XMLAppRec>().receiver.hcp.inst.hcPerson.first().id shouldEqual
-                    apprec.mottakerOrganisasjon.helsepersonell?.houvedIdent?.id
+                    apprec.mottakerOrganisasjon.helsepersonell?.hovedIdent?.id
         }
 
         it("Sets appRec status dn to OK") {

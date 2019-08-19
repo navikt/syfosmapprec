@@ -3,11 +3,11 @@
   "msgId": "21313-1313-13--1313",
   "msgTypeVerdi": "SYKMELD",
   "msgTypeBeskrivelse": "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
-  "genDate": "2019-08-19T10:07:17.384764",
+  "genDate": "2019-08-19T12:03:24.273737",
   "apprecStatus": "OK",
   "tekstTilSykmelder": null,
   "senderOrganisasjon": {
-    "houvedIdent": {
+    "hovedIdent": {
       "id": "1234556",
       "typeId": {
         "beskrivelse": "HER-id",
@@ -27,7 +27,7 @@
     "helsepersonell": null
   },
   "mottakerOrganisasjon": {
-    "houvedIdent": {
+    "hovedIdent": {
       "id": "1234634567",
       "typeId": {
         "beskrivelse": "HER-id",
@@ -46,7 +46,7 @@
     ],
     "helsepersonell": {
       "navn": "Per Hansen",
-      "houvedIdent": {
+      "hovedIdent": {
         "id": "1234356",
         "typeId": {
           "beskrivelse": "HER-id",

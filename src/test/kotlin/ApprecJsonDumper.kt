@@ -26,7 +26,7 @@ fun main() {
             apprecStatus = ApprecStatus.OK,
             tekstTilSykmelder = null,
             mottakerOrganisasjon = Organisation(
-                    houvedIdent = Ident(id = "1234634567", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
+                    hovedIdent = Ident(id = "1234634567", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
                     navn = "Testlegesenteret",
                     tilleggsIdenter = listOf(
                             Ident(id = "223456789",
@@ -34,7 +34,7 @@ fun main() {
                                 ),
                     helsepersonell = Helsepersonell(
                             navn = "Per Hansen",
-                            houvedIdent = Ident(id = "1234356", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
+                            hovedIdent = Ident(id = "1234356", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
                             typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                             tilleggsIdenter = listOf(
                                     Ident(id = "04030350265", typeId = Kodeverdier(beskrivelse = "Fødselsnummer", verdi = "FNR")),
@@ -44,7 +44,7 @@ fun main() {
                     )
             ),
             senderOrganisasjon = Organisation(
-                    houvedIdent = Ident(id = "1234556", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
+                    hovedIdent = Ident(id = "1234556", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
                     navn = "NAV IKT",
                     tilleggsIdenter = listOf(
                             Ident(id = "1234556",
