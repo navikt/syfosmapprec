@@ -27,7 +27,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.logstash.logback.argument.StructuredArguments
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
@@ -54,7 +53,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
         .registerKotlinModule()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
-val coroutineContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
+val coroutineContext = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
 
 @KtorExperimentalAPI
 fun main() = runBlocking(coroutineContext) {
@@ -95,7 +94,7 @@ fun CoroutineScope.createListener(applicationState: ApplicationState, action: su
             try {
                 action()
             } catch (e: TrackableException) {
-                log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", StructuredArguments.fields(e.loggingMeta), e.cause)
+                log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
             } finally {
                 applicationState.running = false
             }
