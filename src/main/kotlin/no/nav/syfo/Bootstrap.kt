@@ -53,7 +53,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
         .registerKotlinModule()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
-val coroutineContext = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
 
 @KtorExperimentalAPI
 fun main() = runBlocking(coroutineContext) {
