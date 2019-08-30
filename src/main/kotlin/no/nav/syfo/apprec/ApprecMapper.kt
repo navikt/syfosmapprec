@@ -39,7 +39,6 @@ fun createApprec(
         val msgInfotypeVerdi = apprec.msgTypeVerdi
         val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
         val msgInfoGenDate = apprec.genDate
-        val msgId = apprec.msgId
         val senderOrganisation = apprec.senderOrganisasjon
         val mottakerOrganisation = apprec.mottakerOrganisasjon
         val fellesformatApprec = XMLEIFellesformat().apply {
@@ -78,7 +77,7 @@ fun createApprec(
                     dn = msgInfotypeBeskrivelse
                 }
                 issueDate = msgInfoGenDate
-                id = msgId
+                id = ediloggid
             }
 
             error.addAll(apprecErrors)
