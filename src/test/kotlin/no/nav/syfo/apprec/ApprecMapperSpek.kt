@@ -143,8 +143,8 @@ object ApprecMapperSpek : Spek({
         it("Sets appRec genDate as issueDate") {
             ff.get<XMLAppRec>().originalMsgId.issueDate shouldEqual apprec.genDate
         }
-        it("Sets appRec originalMsgId to mottakid") {
-            ff.get<XMLAppRec>().originalMsgId.id shouldEqual apprec.ediloggid
+        it("Sets appRec originalMsgId to msgid") {
+            ff.get<XMLAppRec>().originalMsgId.id shouldEqual apprec.msgId
         }
     }
     describe("Error AppRec") {
