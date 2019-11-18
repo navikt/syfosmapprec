@@ -23,19 +23,21 @@ val ktorVersion = "1.2.3"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "5.1"
 val prometheusVersion = "0.6.0"
-val smCommonVersion = "2019.09.25-05-44-08e26429f4e37cd57d99ba4d39fc74099a078b97"
+val smCommonVersion = "1.bba46d9"
 val spekVersion = "2.0.5"
 val confluentVersion = "4.1.1"
 val javaTimeAdapterVersion = "1.1.3"
 
 plugins {
     java
-    kotlin("jvm") version "1.3.40"
-    id("org.jmailen.kotlinter") version "2.1.0"
+    kotlin("jvm") version "1.3.50"
+    id("org.jmailen.kotlinter") version "2.1.1"
     id("com.diffplug.gradle.spotless") version "3.23.1"
     id("com.github.johnrengelman.shadow") version "4.0.4"
 }
 
+val githubUser: String by project
+val githubPassword: String by project
 
 repositories {
     mavenCentral()
@@ -43,6 +45,13 @@ repositories {
     maven(url= "https://dl.bintray.com/spekframework/spek-dev")
     maven(url= "http://packages.confluent.io/maven/")
     maven(url= "https://kotlin.bintray.com/kotlinx")
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/syfosm-common")
+        credentials {
+            username = githubUser
+            password = githubPassword
+        }
+    }
     maven(url = "https://oss.sonatype.org/content/groups/staging/")
 }
 
@@ -74,9 +83,9 @@ dependencies {
     implementation("no.nav.helse.xml:kith-apprec:$kithApprecVersion")
     implementation("no.nav.helse.xml:sm2013:$sykmeldingVersion")
 
-    implementation("no.nav.syfo.sm:syfosm-common-kafka:$smCommonVersion")
-    implementation("no.nav.syfo.sm:syfosm-common-mq:$smCommonVersion")
-    implementation("no.nav.syfo.sm:syfosm-common-models:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-mq:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
 
     implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
 

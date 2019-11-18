@@ -8,9 +8,23 @@ jobs:
     name: Checkout code and create docker tag
     runs-on: ubuntu-latest
     steps:
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v1
+      - name: Run tests
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew test
       - name: Build jar
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew shadowJar -x test
       - name: Create Docker tag
@@ -30,19 +44,29 @@ jobs:
           echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
       - name: Push Docker image
         run: "docker push $(cat .docker_image):$(cat .docker_tag)"
+      - name: dump token before
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: deploy to dev-fss
-        uses: navikt/deployment-cli/action@a260e84
+        uses: navikt/deployment-cli/action@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           cluster: dev-fss
           team: teamsykefravr
-          resource: naiserator-dev.yaml
+          resources: naiserator-dev.yaml
       - name: deploy to prod-fss
-        uses: navikt/deployment-cli/action@a260e84
+        uses: navikt/deployment-cli/action@0.4.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           cluster: prod-fss
           team: teamsykefravr
-          resource: naiserator-prod.yaml
+          resources: naiserator-prod.yaml
+      - name: dump token After
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

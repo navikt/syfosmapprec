@@ -6,32 +6,26 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.Application
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.File
 import java.io.StringWriter
 import java.time.Duration
 import java.util.Properties
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import javax.jms.MessageProducer
 import javax.jms.Session
 import javax.xml.bind.Marshaller
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArguments.fields
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
-import no.nav.syfo.api.registerNaisApi
+import no.nav.syfo.application.ApplicationServer
+import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
@@ -45,9 +39,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
 
-data class ApplicationState(var running: Boolean = true, var ready: Boolean = false)
-
-private val log = LoggerFactory.getLogger("no.nav.syfosmapprec")
+private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
 val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
@@ -55,84 +47,74 @@ val objectMapper: ObjectMapper = ObjectMapper()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
-
 @KtorExperimentalAPI
-fun main() = runBlocking(coroutineContext) {
+fun main() {
     val env = Environment()
     val credentials = objectMapper.readValue<VaultCredentials>(File("/var/run/secrets/nais.io/vault/credentials.json"))
     val applicationState = ApplicationState()
+    val applicationEngine = createApplicationEngine(
+            env,
+            applicationState)
 
-    val applicationServer = embeddedServer(Netty, env.applicationPort) {
-        initRouting(applicationState)
-    }.start(wait = false)
+    val applicationServer = ApplicationServer(applicationEngine, applicationState)
+    applicationServer.start()
 
     DefaultExports.initialize()
 
-    connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
-        connection.start()
+    val kafkaBaseConfig = loadBaseConfig(env, credentials)
+    val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
-        val kafkaBaseConfig = loadBaseConfig(env, credentials)
-        val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
+    applicationState.ready = true
 
-        val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-        val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
-
-        launchListeners(
-                applicationState,
-                kvitteringsProducer,
-                session,
-                env,
-                consumerProperties)
-
-        Runtime.getRuntime().addShutdownHook(Thread {
-            applicationServer.stop(10, 10, TimeUnit.SECONDS)
-        })
-    }
+    launchListeners(
+            applicationState,
+            env,
+            consumerProperties,
+            credentials)
 }
 
-fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
-        launch {
+fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+        GlobalScope.launch {
             try {
                 action()
             } catch (e: TrackableException) {
                 log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
             } finally {
-                applicationState.running = false
+                applicationState.alive = false
             }
         }
 
 @KtorExperimentalAPI
-suspend fun CoroutineScope.launchListeners(
-    applicationState: ApplicationState,
-    receiptProducer: MessageProducer,
-    session: Session,
-    env: Environment,
-    consumerProperties: Properties
+fun launchListeners(
+        applicationState: ApplicationState,
+        env: Environment,
+        consumerProperties: Properties,
+        credentials: VaultCredentials
 ) {
-    val recievedSykmeldingListeners = 0.until(env.applicationThreads).map {
-        val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
+    val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
 
-        kafkaconsumerRecievedSykmelding.subscribe(
-                listOf(env.sm2013Apprec)
-        )
-        createListener(applicationState) {
-            blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, receiptProducer, session)
+    kafkaconsumerRecievedSykmelding.subscribe(
+            listOf(env.sm2013Apprec)
+    )
+    createListener(applicationState) {
+        connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
+            connection.start()
+            val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+            val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
+
+            blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, kvitteringsProducer, session)
         }
-    }.toList()
-
-    applicationState.ready = true
-    recievedSykmeldingListeners.forEach { it.join() }
+    }
 }
 
 @KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
-    applicationState: ApplicationState,
-    kafkaConsumer: KafkaConsumer<String, String>,
-    receiptProducer: MessageProducer,
-    session: Session
+        applicationState: ApplicationState,
+        kafkaConsumer: KafkaConsumer<String, String>,
+        receiptProducer: MessageProducer,
+        session: Session
 ) {
-    while (applicationState.running) {
+    while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
 
@@ -149,11 +131,11 @@ suspend fun blockingApplicationLogic(
 
 @KtorExperimentalAPI
 suspend fun handleMessage(
-    apprec: Apprec,
-    receiptProducer: MessageProducer,
-    session: Session,
-    loggingMeta: LoggingMeta
-) = coroutineScope {
+        apprec: Apprec,
+        receiptProducer: MessageProducer,
+        session: Session,
+        loggingMeta: LoggingMeta
+) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013, {}", fields(loggingMeta))
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
@@ -172,12 +154,12 @@ suspend fun handleMessage(
 }
 
 fun sendReceipt(
-    session: Session,
-    receiptProducer: MessageProducer,
-    apprec: Apprec,
-    apprecStatus: ApprecStatus,
-    loggingMeta: LoggingMeta,
-    apprecErrors: List<XMLCV> = listOf()
+        session: Session,
+        receiptProducer: MessageProducer,
+        apprec: Apprec,
+        apprecStatus: ApprecStatus,
+        loggingMeta: LoggingMeta,
+        apprecErrors: List<XMLCV> = listOf()
 ) {
     val ediloggid = apprec.ediloggid
 
@@ -194,12 +176,6 @@ fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.to
 fun Marshaller.toString(input: Any): String = StringWriter().use {
     marshal(input, it)
     it.toString()
-}
-
-fun Application.initRouting(applicationState: ApplicationState) {
-    routing {
-        registerNaisApi(readynessCheck = { applicationState.ready }, livenessCheck = { applicationState.running })
-    }
 }
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
