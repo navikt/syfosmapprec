@@ -61,27 +61,19 @@ fun main() {
 
     DefaultExports.initialize()
 
-    connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
-        connection.start()
+    val kafkaBaseConfig = loadBaseConfig(env, credentials)
+    val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
-        val kafkaBaseConfig = loadBaseConfig(env, credentials)
-        val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
+    applicationState.ready = true
 
-        val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-        val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
-
-        applicationState.ready = true
-
-        launchListeners(
-                applicationState,
-                kvitteringsProducer,
-                session,
-                env,
-                consumerProperties)
-    }
+    launchListeners(
+            applicationState,
+            env,
+            consumerProperties,
+            credentials)
 }
 
-fun CoroutineScope.createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
         GlobalScope.launch {
             try {
                 action()
@@ -95,10 +87,9 @@ fun CoroutineScope.createListener(applicationState: ApplicationState, action: su
 @KtorExperimentalAPI
 fun launchListeners(
     applicationState: ApplicationState,
-    receiptProducer: MessageProducer,
-    session: Session,
     env: Environment,
-    consumerProperties: Properties
+    consumerProperties: Properties,
+    credentials: VaultCredentials
 ) {
     val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
 
@@ -106,20 +97,15 @@ fun launchListeners(
             listOf(env.sm2013Apprec)
     )
     createListener(applicationState) {
-        blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, receiptProducer, session)
+        connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
+            connection.start()
+            val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+            val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
+
+            blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, kvitteringsProducer, session)
+        }
     }
 }
-
-fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
-        GlobalScope.launch {
-            try {
-                action()
-            } catch (e: TrackableException) {
-                log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
-            } finally {
-                applicationState.alive = false
-            }
-        }
 
 @KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
