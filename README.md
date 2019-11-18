@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/navikt/syfosmapprec.svg?style=svg)](https://circleci.com/gh/navikt/syfosmapprec)
+[![Build status](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)
 
 # SYFO Sykmelding Apprec
 This project creates and sends a apprec to emottak, which in turn sends it on the epj-system
