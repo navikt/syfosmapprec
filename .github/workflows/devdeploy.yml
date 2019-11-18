@@ -9,6 +9,11 @@ jobs:
     name: Checkout code and create docker tag
     runs-on: ubuntu-latest
     steps:
+      - name: Check API rate limit
+        run: |
+          curl -s "https://api.github.com/rate_limit" -H "Authorization: token $GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Run tests
