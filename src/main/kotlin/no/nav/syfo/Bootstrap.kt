@@ -86,10 +86,10 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
 
 @KtorExperimentalAPI
 fun launchListeners(
-        applicationState: ApplicationState,
-        env: Environment,
-        consumerProperties: Properties,
-        credentials: VaultCredentials
+    applicationState: ApplicationState,
+    env: Environment,
+    consumerProperties: Properties,
+    credentials: VaultCredentials
 ) {
     val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
 
@@ -109,10 +109,10 @@ fun launchListeners(
 
 @KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
-        applicationState: ApplicationState,
-        kafkaConsumer: KafkaConsumer<String, String>,
-        receiptProducer: MessageProducer,
-        session: Session
+    applicationState: ApplicationState,
+    kafkaConsumer: KafkaConsumer<String, String>,
+    receiptProducer: MessageProducer,
+    session: Session
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -131,10 +131,10 @@ suspend fun blockingApplicationLogic(
 
 @KtorExperimentalAPI
 suspend fun handleMessage(
-        apprec: Apprec,
-        receiptProducer: MessageProducer,
-        session: Session,
-        loggingMeta: LoggingMeta
+    apprec: Apprec,
+    receiptProducer: MessageProducer,
+    session: Session,
+    loggingMeta: LoggingMeta
 ) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013, {}", fields(loggingMeta))
@@ -154,12 +154,12 @@ suspend fun handleMessage(
 }
 
 fun sendReceipt(
-        session: Session,
-        receiptProducer: MessageProducer,
-        apprec: Apprec,
-        apprecStatus: ApprecStatus,
-        loggingMeta: LoggingMeta,
-        apprecErrors: List<XMLCV> = listOf()
+    session: Session,
+    receiptProducer: MessageProducer,
+    apprec: Apprec,
+    apprecStatus: ApprecStatus,
+    loggingMeta: LoggingMeta,
+    apprecErrors: List<XMLCV> = listOf()
 ) {
     val ediloggid = apprec.ediloggid
 
