@@ -11,6 +11,10 @@ This project creates and sends a apprec to emottak, which in turn sends it on th
 * Spek
 * Jackson
 
+#### Requirements
+
+* JDK 12
+
 ## Getting started
 ### Getting github-package-registry packages NAV-IT
 Some packages used in this repo is uploaded to the Github Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
