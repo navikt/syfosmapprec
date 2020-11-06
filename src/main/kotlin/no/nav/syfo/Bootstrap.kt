@@ -62,6 +62,7 @@ fun main() {
     DefaultExports.initialize()
 
     val kafkaBaseConfig = loadBaseConfig(env, credentials)
+    kafkaBaseConfig["auto.offset.reset"] = "none"
     val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
     applicationState.ready = true
