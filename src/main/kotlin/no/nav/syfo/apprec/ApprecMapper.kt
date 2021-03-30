@@ -20,6 +20,7 @@ import no.nav.syfo.Organisation
 import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.apprecJaxbMarshaller
 import no.nav.syfo.model.RuleInfo
+import no.nav.syfo.util.getDateTimeString
 import org.w3c.dom.Element
 
 fun apprecToElement(apprec: XMLAppRec): Element {
@@ -38,7 +39,7 @@ fun createApprec(
 ): XMLEIFellesformat {
         val msgInfotypeVerdi = apprec.msgTypeVerdi
         val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
-        val msgInfoGenDate = apprec.genDate
+        val msgInfoGenDate: String = apprec.msgGenDate ?: getDateTimeString(apprec.genDate)
         val msgId = apprec.msgId
         val senderOrganisation = apprec.senderOrganisasjon
         val mottakerOrganisation = apprec.mottakerOrganisasjon
@@ -56,7 +57,7 @@ fun createApprec(
                 v = SyfoSmApprecConstant.APPREC.string
             }
             miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
-            genDate = LocalDateTime.now()
+            genDate = getDateTimeString(LocalDateTime.now())
             id = ediloggid
 
             sender = XMLAppRec.Sender().apply {

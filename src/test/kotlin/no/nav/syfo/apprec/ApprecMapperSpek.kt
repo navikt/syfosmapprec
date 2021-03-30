@@ -15,6 +15,7 @@ import no.nav.syfo.Apprec
 import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.get
 import no.nav.syfo.serializeAppRec
+import no.nav.syfo.util.getDateTimeString
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -57,6 +58,14 @@ object ApprecMapperSpek : Spek({
 
     describe("OK AppRec") {
         val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
+        it("should get correct genDate") {
+            val apprec = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec.copy(genDate = LocalDateTime.parse("2021-03-03T12:02:02"), msgGenDate = "2021-03-03T12:01:01+01:00"), ApprecStatus.OK, listOf()))
+            apprec.get<XMLAppRec>().originalMsgId.issueDate shouldEqual "2021-03-03T12:01:01+01:00"
+        }
+        it("should get correct genDate with msgGenDate = null") {
+            val apprec = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec.copy(genDate = LocalDateTime.parse("2021-03-03T12:02:02")), ApprecStatus.OK, listOf()))
+            apprec.get<XMLAppRec>().originalMsgId.issueDate shouldEqual "2021-03-03T12:02:02"
+        }
         it("Sets ebRole to ebRoleNav") {
             ff.get<XMLMottakenhetBlokk>().ebRole shouldEqual SyfoSmApprecConstant.EBROLENAV.string
         }
@@ -71,12 +80,6 @@ object ApprecMapperSpek : Spek({
         }
         it("Sets appRec miGversion") {
             ff.get<XMLAppRec>().miGversion shouldEqual SyfoSmApprecConstant.APPRECVERSIONV1_0.string
-        }
-        it("Sets genDate to current date") {
-            val now = LocalDateTime.now()
-            ff.get<XMLAppRec>().genDate.monthValue shouldEqual now.monthValue
-            ff.get<XMLAppRec>().genDate.dayOfMonth shouldEqual now.dayOfMonth
-            ff.get<XMLAppRec>().genDate.hour shouldEqual now.hour
         }
         it("Sets appRec id to ediLoggId") {
             ff.get<XMLAppRec>().id shouldEqual apprec.ediloggid
@@ -141,7 +144,7 @@ object ApprecMapperSpek : Spek({
             ff.get<XMLAppRec>().originalMsgId.msgType.v shouldEqual "SYKMELD"
         }
         it("Sets appRec genDate as issueDate") {
-            ff.get<XMLAppRec>().originalMsgId.issueDate shouldEqual apprec.genDate
+            ff.get<XMLAppRec>().originalMsgId.issueDate shouldEqual getDateTimeString(apprec.genDate)
         }
         it("Sets appRec originalMsgId to msgid") {
             ff.get<XMLAppRec>().originalMsgId.id shouldEqual apprec.msgId
