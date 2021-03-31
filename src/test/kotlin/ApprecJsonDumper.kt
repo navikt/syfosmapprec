@@ -24,6 +24,7 @@ fun main() {
             msgTypeBeskrivelse = "Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding",
             genDate = LocalDateTime.now(),
             apprecStatus = ApprecStatus.OK,
+            msgGenDate = "2021-03-03T12:01:01",
             tekstTilSykmelder = null,
             mottakerOrganisasjon = Organisation(
                     hovedIdent = Ident(id = "1234634567", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
