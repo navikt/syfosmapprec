@@ -21,7 +21,10 @@ import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.apprecJaxbMarshaller
 import no.nav.syfo.model.RuleInfo
 import no.nav.syfo.util.getDateTimeString
+import org.slf4j.LoggerFactory
 import org.w3c.dom.Element
+
+private val log = LoggerFactory.getLogger("no.nav.syfo.apprec.ApprecMapper")
 
 fun apprecToElement(apprec: XMLAppRec): Element {
     val document = DocumentBuilderFactory.newInstance()
@@ -40,6 +43,10 @@ fun createApprec(
         val msgInfotypeVerdi = apprec.msgTypeVerdi
         val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
         val msgInfoGenDate: String = apprec.msgGenDate ?: getDateTimeString(apprec.genDate)
+        when (apprec.msgGenDate) {
+            null -> log.info("Using old datetime: $msgInfoGenDate")
+            else -> log.info("Using original datetime: $msgInfoGenDate")
+        }
         val msgId = apprec.msgId
         val senderOrganisation = apprec.senderOrganisasjon
         val mottakerOrganisation = apprec.mottakerOrganisasjon
