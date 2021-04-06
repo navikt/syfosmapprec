@@ -23,6 +23,8 @@ import no.nav.syfo.model.RuleInfo
 import no.nav.syfo.util.getDateTimeString
 import org.slf4j.LoggerFactory
 import org.w3c.dom.Element
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.apprec.ApprecMapper")
 
@@ -64,7 +66,7 @@ fun createApprec(
                 v = SyfoSmApprecConstant.APPREC.string
             }
             miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
-            genDate = getDateTimeString(LocalDateTime.now())
+            genDate = getDateTimeString(OffsetDateTime.now(ZoneOffset.UTC))
             id = ediloggid
 
             sender = XMLAppRec.Sender().apply {
