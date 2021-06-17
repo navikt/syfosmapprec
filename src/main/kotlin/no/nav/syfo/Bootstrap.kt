@@ -51,6 +51,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
 fun main() {
     val env = Environment()
     val credentials = objectMapper.readValue<VaultCredentials>(File("/var/run/secrets/nais.io/vault/credentials.json"))
+    val vaultServiceUser = VaultServiceUser()
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
         env,
@@ -62,7 +63,7 @@ fun main() {
 
     DefaultExports.initialize()
 
-    val kafkaBaseConfig = loadBaseConfig(env, credentials)
+    val kafkaBaseConfig = loadBaseConfig(env, vaultServiceUser)
     kafkaBaseConfig["auto.offset.reset"] = "none"
     val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
