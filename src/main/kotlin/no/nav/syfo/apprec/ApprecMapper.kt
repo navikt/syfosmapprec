@@ -1,11 +1,8 @@
 package no.nav.syfo.apprec
 
-import java.time.LocalDateTime
-import javax.xml.parsers.DocumentBuilderFactory
 import no.nav.helse.apprecV1.XMLAdditionalId
 import no.nav.helse.apprecV1.XMLAppRec
 import no.nav.helse.apprecV1.XMLCS
-import no.nav.helse.apprecV1.XMLCV as AppRecCV
 import no.nav.helse.apprecV1.XMLHCP
 import no.nav.helse.apprecV1.XMLHCPerson
 import no.nav.helse.apprecV1.XMLInst
@@ -25,13 +22,15 @@ import org.slf4j.LoggerFactory
 import org.w3c.dom.Element
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import javax.xml.parsers.DocumentBuilderFactory
+import no.nav.helse.apprecV1.XMLCV as AppRecCV
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.apprec.ApprecMapper")
 
 fun apprecToElement(apprec: XMLAppRec): Element {
     val document = DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder()
-            .newDocument()
+        .newDocumentBuilder()
+        .newDocument()
     apprecJaxbMarshaller.marshal(apprec, document)
     return document.documentElement
 }
@@ -42,57 +41,62 @@ fun createApprec(
     apprecStatus: ApprecStatus,
     apprecErrors: List<AppRecCV>
 ): XMLEIFellesformat {
-        val msgInfotypeVerdi = apprec.msgTypeVerdi
-        val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
-        val msgInfoGenDate: String = apprec.msgGenDate ?: getDateTimeString(apprec.genDate)
-        when (apprec.msgGenDate) {
-            null -> log.info("Using old datetime: $msgInfoGenDate")
-            else -> log.info("Using original datetime: $msgInfoGenDate")
-        }
-        val msgId = apprec.msgId
-        val senderOrganisation = apprec.senderOrganisasjon
-        val mottakerOrganisation = apprec.mottakerOrganisasjon
-        val fellesformatApprec = XMLEIFellesformat().apply {
-        any.add(XMLMottakenhetBlokk().apply {
-            ediLoggId = ediloggid
-            ebRole = SyfoSmApprecConstant.EBROLENAV.string
-            ebService = SyfoSmApprecConstant.EBSERVICESYKMELDING.string
-            ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
-        }
+    val msgInfotypeVerdi = apprec.msgTypeVerdi
+    val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
+    val msgInfoGenDate: String = apprec.msgGenDate ?: getDateTimeString(apprec.genDate)
+    when (apprec.msgGenDate) {
+        null -> log.info("Using old datetime: $msgInfoGenDate")
+        else -> log.info("Using original datetime: $msgInfoGenDate")
+    }
+    val msgId = apprec.msgId
+    val senderOrganisation = apprec.senderOrganisasjon
+    val mottakerOrganisation = apprec.mottakerOrganisasjon
+    val fellesformatApprec = XMLEIFellesformat().apply {
+        any.add(
+            XMLMottakenhetBlokk().apply {
+                ediLoggId = ediloggid
+                ebRole = SyfoSmApprecConstant.EBROLENAV.string
+                ebService = SyfoSmApprecConstant.EBSERVICESYKMELDING.string
+                ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
+            }
         )
 
-        any.add(apprecToElement(XMLAppRec().apply {
-            msgType = XMLCS().apply {
-                v = SyfoSmApprecConstant.APPREC.string
-            }
-            miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
-            genDate = getDateTimeString(OffsetDateTime.now(ZoneOffset.UTC))
-            id = ediloggid
+        any.add(
+            apprecToElement(
+                XMLAppRec().apply {
+                    msgType = XMLCS().apply {
+                        v = SyfoSmApprecConstant.APPREC.string
+                    }
+                    miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
+                    genDate = getDateTimeString(OffsetDateTime.now(ZoneOffset.UTC))
+                    id = ediloggid
 
-            sender = XMLAppRec.Sender().apply {
-                hcp = senderOrganisation.intoHCP()
-            }
+                    sender = XMLAppRec.Sender().apply {
+                        hcp = senderOrganisation.intoHCP()
+                    }
 
-            receiver = XMLAppRec.Receiver().apply {
-                hcp = mottakerOrganisation.intoHCP()
-            }
+                    receiver = XMLAppRec.Receiver().apply {
+                        hcp = mottakerOrganisation.intoHCP()
+                    }
 
-            status = XMLCS().apply {
-                v = apprecStatus.v
-                dn = apprecStatus.dn
-            }
+                    status = XMLCS().apply {
+                        v = apprecStatus.v
+                        dn = apprecStatus.dn
+                    }
 
-            originalMsgId = XMLOriginalMsgId().apply {
-                msgType = XMLCS().apply {
-                    v = msgInfotypeVerdi
-                    dn = msgInfotypeBeskrivelse
+                    originalMsgId = XMLOriginalMsgId().apply {
+                        msgType = XMLCS().apply {
+                            v = msgInfotypeVerdi
+                            dn = msgInfotypeBeskrivelse
+                        }
+                        issueDate = msgInfoGenDate
+                        id = msgId
+                    }
+
+                    error.addAll(apprecErrors)
                 }
-                issueDate = msgInfoGenDate
-                id = msgId
-            }
-
-            error.addAll(apprecErrors)
-        }))
+            )
+        )
     }
 
     return fellesformatApprec
@@ -157,7 +161,7 @@ fun RuleInfo.toApprecCV(): AppRecCV {
 }
 
 fun createApprecError(textToTreater: String?): AppRecCV = AppRecCV().apply {
-        dn = textToTreater ?: ""
-        v = "2.16.578.1.12.4.1.1.8221"
-        s = "X99"
-    }
+    dn = textToTreater ?: ""
+    v = "2.16.578.1.12.4.1.1.8221"
+    s = "X99"
+}

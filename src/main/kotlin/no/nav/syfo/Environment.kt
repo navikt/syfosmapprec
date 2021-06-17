@@ -17,7 +17,7 @@ data class Environment(
     override val truststore: String? = getEnvVar("NAV_TRUSTSTORE_PATH"),
     override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
     override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
-    ) : MqConfig, KafkaConfig
+) : MqConfig, KafkaConfig
 
 data class VaultCredentials(
     val serviceuserUsername: String,
@@ -30,4 +30,4 @@ data class VaultCredentials(
 }
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
-        System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
+    System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")

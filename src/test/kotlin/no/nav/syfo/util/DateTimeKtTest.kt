@@ -1,9 +1,9 @@
 package no.nav.syfo.util
 
 import org.amshove.kluent.shouldBeEqualTo
-import java.time.LocalDateTime
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 class DateTimeKtTest : Spek({

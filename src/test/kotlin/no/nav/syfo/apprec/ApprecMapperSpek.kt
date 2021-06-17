@@ -5,9 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.io.StringReader
-import java.time.LocalDateTime
-import javax.xml.bind.JAXBContext
 import no.nav.helse.apprecV1.XMLAppRec
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
@@ -19,25 +16,31 @@ import no.nav.syfo.util.getDateTimeString
 import org.amshove.kluent.shouldBeEqualTo
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.io.StringReader
+import java.time.LocalDateTime
+import javax.xml.bind.JAXBContext
 
 object ApprecMapperSpek : Spek({
     val objectMapper = ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .registerKotlinModule()
+        .registerModule(JavaTimeModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     val apprec: Apprec = objectMapper.readValue(Apprec::class.java.getResourceAsStream("/apprecOK.json").readBytes().toString(Charsets.UTF_8))
 
     val apprecUnmarshaller = JAXBContext.newInstance(XMLEIFellesformat::class.java, XMLAppRec::class.java, XMLMottakenhetBlokk::class.java)
-            .createUnmarshaller()
+        .createUnmarshaller()
 
     fun marshalAndUnmarshal(fellesformat: XMLEIFellesformat): XMLEIFellesformat =
-            apprecUnmarshaller.unmarshal(StringReader(serializeAppRec(fellesformat))) as XMLEIFellesformat
+        apprecUnmarshaller.unmarshal(StringReader(serializeAppRec(fellesformat))) as XMLEIFellesformat
 
     describe("Duplicate AppRec") {
         val apprecErrorDuplicate = createApprecError("Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.")
-        val ff = marshalAndUnmarshal(createApprec(
-                apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf()))
+        val ff = marshalAndUnmarshal(
+            createApprec(
+                apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf()
+            )
+        )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         it("Has the same ediLoggId as the source") {
             ff.get<XMLMottakenhetBlokk>().ediLoggId shouldBeEqualTo apprec.ediloggid
