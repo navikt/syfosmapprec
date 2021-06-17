@@ -8,13 +8,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
-import java.io.File
-import java.io.StringWriter
-import java.time.Duration
-import java.util.Properties
-import javax.jms.MessageProducer
-import javax.jms.Session
-import javax.xml.bind.Marshaller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -38,52 +31,62 @@ import no.nav.syfo.mq.producerForQueue
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.io.StringWriter
+import java.time.Duration
+import java.util.Properties
+import javax.jms.MessageProducer
+import javax.jms.Session
+import javax.xml.bind.Marshaller
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
 val objectMapper: ObjectMapper = ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerKotlinModule()
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    .registerModule(JavaTimeModule())
+    .registerKotlinModule()
+    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 @KtorExperimentalAPI
 fun main() {
     val env = Environment()
     val credentials = objectMapper.readValue<VaultCredentials>(File("/var/run/secrets/nais.io/vault/credentials.json"))
+    val vaultServiceUser = VaultServiceUser()
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
-            env,
-            applicationState)
+        env,
+        applicationState
+    )
 
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
     applicationServer.start()
 
     DefaultExports.initialize()
 
-    val kafkaBaseConfig = loadBaseConfig(env, credentials)
+    val kafkaBaseConfig = loadBaseConfig(env, vaultServiceUser)
     kafkaBaseConfig["auto.offset.reset"] = "none"
     val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
     applicationState.ready = true
 
     launchListeners(
-            applicationState,
-            env,
-            consumerProperties,
-            credentials)
+        applicationState,
+        env,
+        consumerProperties,
+        credentials
+    )
 }
 
 fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
-        GlobalScope.launch {
-            try {
-                action()
-            } catch (e: TrackableException) {
-                log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
-            } finally {
-                applicationState.alive = false
-            }
+    GlobalScope.launch {
+        try {
+            action()
+        } catch (e: TrackableException) {
+            log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
+        } finally {
+            applicationState.alive = false
         }
+    }
 
 @KtorExperimentalAPI
 fun launchListeners(
@@ -95,7 +98,7 @@ fun launchListeners(
     val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
 
     kafkaconsumerRecievedSykmelding.subscribe(
-            listOf(env.sm2013Apprec)
+        listOf(env.sm2013Apprec)
     )
     createListener(applicationState) {
         connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
@@ -120,8 +123,8 @@ suspend fun blockingApplicationLogic(
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
 
             val loggingMeta = LoggingMeta(
-                    mottakId = apprec.ediloggid,
-                    msgId = apprec.msgId
+                mottakId = apprec.ediloggid,
+                msgId = apprec.msgId
             )
 
             handleMessage(apprec, receiptProducer, session, loggingMeta)
@@ -142,11 +145,14 @@ suspend fun handleMessage(
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
                 sendReceipt(
-                        session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta,
-                        apprec.validationResult.ruleHits.map { it.toApprecCV() })
+                    session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta,
+                    apprec.validationResult.ruleHits.map { it.toApprecCV() }
+                )
             } else {
-                sendReceipt(session, receiptProducer, apprec, ApprecStatus.AVVIST,
-                        loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder)))
+                sendReceipt(
+                    session, receiptProducer, apprec, ApprecStatus.AVVIST,
+                    loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder))
+                )
             }
         } else {
             sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
@@ -165,10 +171,12 @@ fun sendReceipt(
     val ediloggid = apprec.ediloggid
 
     APPREC_COUNTER.inc()
-    receiptProducer.send(session.createTextMessage().apply {
-        val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
-        text = serializeAppRec(apprecFellesformat)
-    })
+    receiptProducer.send(
+        session.createTextMessage().apply {
+            val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
+            text = serializeAppRec(apprecFellesformat)
+        }
+    )
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
 

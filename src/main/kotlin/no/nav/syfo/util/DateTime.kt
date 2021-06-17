@@ -7,6 +7,6 @@ fun getDateTimeString(localDateTime: LocalDateTime): String {
     return localDateTime.toString()
 }
 
-fun getDateTimeString(timestamp: OffsetDateTime) : String {
+fun getDateTimeString(timestamp: OffsetDateTime): String {
     return timestamp.toString()
 }
