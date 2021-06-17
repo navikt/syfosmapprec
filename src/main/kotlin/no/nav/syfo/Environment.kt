@@ -13,8 +13,11 @@ data class Environment(
     override val mqChannelName: String = getEnvVar("MQ_CHANNEL_NAME"),
     val apprecQueueName: String = getEnvVar("MQ_APPREC_QUEUE_NAME"),
     override val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
-    val sm2013Apprec: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-apprec-v1")
-) : MqConfig, KafkaConfig
+    val sm2013Apprec: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-apprec-v1"),
+    override val truststore: String? = getEnvVar("NAV_TRUSTSTORE_PATH"),
+    override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
+    override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
+    ) : MqConfig, KafkaConfig
 
 data class VaultCredentials(
     val serviceuserUsername: String,
