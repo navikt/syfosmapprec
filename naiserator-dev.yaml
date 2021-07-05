@@ -38,8 +38,6 @@ spec:
     paths:
       - kvPath: serviceuser/data/dev/srvsyfosmapprec
         mountPath: /secrets/serviceuser
-      - kvPath: /kv/preprod/fss/syfosmapprec/teamsykmelding
-        mountPath: /var/run/secrets/nais.io/vault
   webproxy: true
   env:
     - name: MQ_HOST_NAME
