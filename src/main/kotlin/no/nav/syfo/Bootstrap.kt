@@ -31,7 +31,6 @@ import no.nav.syfo.mq.producerForQueue
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
-import java.io.File
 import java.io.StringWriter
 import java.time.Duration
 import java.util.Properties
@@ -50,7 +49,6 @@ val objectMapper: ObjectMapper = ObjectMapper()
 @KtorExperimentalAPI
 fun main() {
     val env = Environment()
-    val credentials = objectMapper.readValue<VaultCredentials>(File("/var/run/secrets/nais.io/vault/credentials.json"))
     val vaultServiceUser = VaultServiceUser()
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
@@ -73,7 +71,7 @@ fun main() {
         applicationState,
         env,
         consumerProperties,
-        credentials
+        vaultServiceUser
     )
 }
 
@@ -93,7 +91,7 @@ fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
     consumerProperties: Properties,
-    credentials: VaultCredentials
+    vaultServiceUser: VaultServiceUser
 ) {
     val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
 
@@ -101,7 +99,7 @@ fun launchListeners(
         listOf(env.sm2013Apprec)
     )
     createListener(applicationState) {
-        connectionFactory(env).createConnection(credentials.mqUsername, credentials.mqPassword).use { connection ->
+        connectionFactory(env).createConnection(vaultServiceUser.serviceuserUsername, vaultServiceUser.serviceuserPassword).use { connection ->
             connection.start()
             val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
             val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)

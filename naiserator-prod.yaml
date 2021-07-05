@@ -38,16 +38,14 @@ spec:
     paths:
       - kvPath: serviceuser/data/prod/srvsyfosmapprec
         mountPath: /secrets/serviceuser
-      - kvPath: /kv/prod/fss/syfosmapprec/teamsykmelding
-        mountPath: /var/run/secrets/nais.io/vault
   webproxy: true
   env:
     - name: MQ_HOST_NAME
-      value: a01apvl064.adeo.no
+      value: aa01apvl271.adeo.no
     - name: MQ_PORT
       value: '1414'
     - name: MQ_GATEWAY_NAME
-      value: MPLSC04
+      value: MPLS04
     - name: MQ_CHANNEL_NAME
       value: P_SYFOSMAPPREC
     - name: MQ_APPREC_QUEUE_NAME
