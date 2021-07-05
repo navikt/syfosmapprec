@@ -41,7 +41,7 @@ spec:
   webproxy: true
   env:
     - name: MQ_HOST_NAME
-      value: a01apvl064.adeo.no
+      value: aa01apvl271.adeo.no
     - name: MQ_PORT
       value: '1414'
     - name: MQ_GATEWAY_NAME
