@@ -45,7 +45,7 @@ spec:
     - name: MQ_PORT
       value: '1413'
     - name: MQ_GATEWAY_NAME
-      value: MQ1LSC04
+      value: MQLSC04
     - name: MQ_CHANNEL_NAME
       value: Q1_SYFOSMAPPREC
     - name: MQ_APPREC_QUEUE_NAME
