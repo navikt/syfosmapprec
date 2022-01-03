@@ -8,7 +8,7 @@ version = "1.0.0"
 val artemisVersion = "2.17.0"
 val coroutinesVersion = "1.5.2"
 val fellesformatVersion = "1.c22de09"
-val ibmMqVersion = "9.2.1.0"
+val ibmMqVersion = "9.2.4.0"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "2.13.0"
 val jaxbApiVersion = "2.4.0-b180830.0359"
@@ -58,10 +58,6 @@ dependencies {
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-auth-basic-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")

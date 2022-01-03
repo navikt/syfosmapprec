@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.util.KtorExperimentalAPI
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -46,7 +45,6 @@ val objectMapper: ObjectMapper = ObjectMapper()
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-@KtorExperimentalAPI
 fun main() {
     val env = Environment()
     val vaultServiceUser = VaultServiceUser()
@@ -86,7 +84,6 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
         }
     }
 
-@KtorExperimentalAPI
 fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
@@ -109,7 +106,6 @@ fun launchListeners(
     }
 }
 
-@KtorExperimentalAPI
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
@@ -131,7 +127,6 @@ suspend fun blockingApplicationLogic(
     }
 }
 
-@KtorExperimentalAPI
 suspend fun handleMessage(
     apprec: Apprec,
     receiptProducer: MessageProducer,
