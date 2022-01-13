@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -23,7 +24,6 @@ import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
 import no.nav.syfo.apprec.toApprecCV
 import no.nav.syfo.kafka.aiven.KafkaUtils
-import no.nav.syfo.kafka.loadBaseConfig
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.metrics.APPREC_COUNTER
 import no.nav.syfo.mq.connectionFactory
@@ -47,6 +47,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+@DelicateCoroutinesApi
 fun main() {
     val env = Environment()
     val vaultServiceUser = VaultServiceUser()
@@ -61,15 +62,11 @@ fun main() {
 
     DefaultExports.initialize()
 
-    val kafkaBaseConfig = loadBaseConfig(env, vaultServiceUser)
-    kafkaBaseConfig["auto.offset.reset"] = "none"
-    val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
-
     val consumerAivenProperties = KafkaUtils.getAivenKafkaConfig().toConsumerConfig(
         "${env.applicationName}-consumer",
         StringDeserializer::class
     ).also {
-        it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
         it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
     }
 
@@ -78,12 +75,12 @@ fun main() {
     launchListeners(
         applicationState,
         env,
-        consumerProperties,
         vaultServiceUser,
         consumerAivenProperties
     )
 }
 
+@DelicateCoroutinesApi
 fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
     GlobalScope.launch {
         try {
@@ -95,18 +92,13 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
         }
     }
 
+@DelicateCoroutinesApi
 fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
-    consumerProperties: Properties,
     vaultServiceUser: VaultServiceUser,
     consumerAivenProperties: Properties
 ) {
-    val kafkaconsumerApprec = KafkaConsumer<String, String>(consumerProperties)
-    kafkaconsumerApprec.subscribe(
-        listOf(env.sm2013Apprec)
-    )
-
     val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
     kafkaAivenConsumerApprec.subscribe(
         listOf(env.apprecTopic)
@@ -118,31 +110,18 @@ fun launchListeners(
             val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
             val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
 
-            blockingApplicationLogic(applicationState, kafkaconsumerApprec, kvitteringsProducer, session, kafkaAivenConsumerApprec)
+            blockingApplicationLogic(applicationState, kvitteringsProducer, session, kafkaAivenConsumerApprec)
         }
     }
 }
 
 suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
-    kafkaConsumer: KafkaConsumer<String, String>,
     receiptProducer: MessageProducer,
     session: Session,
     kafkaAivenConsumer: KafkaConsumer<String, String>,
 ) {
     while (applicationState.ready) {
-        kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
-            val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
-
-            val loggingMeta = LoggingMeta(
-                mottakId = apprec.ediloggid,
-                msgId = apprec.msgId
-            )
-
-            handleMessage(apprec, receiptProducer, session, loggingMeta, "on-prem")
-        }
-        delay(100)
-
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
 
