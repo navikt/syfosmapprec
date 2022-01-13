@@ -17,6 +17,7 @@ data class Environment(
     val apprecQueueName: String = getEnvVar("MQ_APPREC_QUEUE_NAME"),
     override val kafkaBootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS_URL"),
     val sm2013Apprec: String = getEnvVar("KAFKA_SM2013_BEHANDLING_TOPIC", "privat-syfo-sm2013-apprec-v1"),
+    val apprecTopic: String = "teamsykmelding.sykmelding-apprec",
     override val truststore: String? = getEnvVar("NAV_TRUSTSTORE_PATH"),
     override val truststorePassword: String? = getEnvVar("NAV_TRUSTSTORE_PASSWORD"),
     override val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")

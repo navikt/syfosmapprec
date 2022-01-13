@@ -22,11 +22,13 @@ import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
 import no.nav.syfo.apprec.toApprecCV
+import no.nav.syfo.kafka.aiven.KafkaUtils
 import no.nav.syfo.kafka.loadBaseConfig
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.metrics.APPREC_COUNTER
 import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
@@ -63,13 +65,22 @@ fun main() {
     kafkaBaseConfig["auto.offset.reset"] = "none"
     val consumerProperties = kafkaBaseConfig.toConsumerConfig("${env.applicationName}-consumer", valueDeserializer = StringDeserializer::class)
 
+    val consumerAivenProperties = KafkaUtils.getAivenKafkaConfig().toConsumerConfig(
+        "${env.applicationName}-consumer",
+        StringDeserializer::class
+    ).also {
+        it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
+    }
+
     applicationState.ready = true
 
     launchListeners(
         applicationState,
         env,
         consumerProperties,
-        vaultServiceUser
+        vaultServiceUser,
+        consumerAivenProperties
     )
 }
 
@@ -88,20 +99,26 @@ fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
     consumerProperties: Properties,
-    vaultServiceUser: VaultServiceUser
+    vaultServiceUser: VaultServiceUser,
+    consumerAivenProperties: Properties
 ) {
-    val kafkaconsumerRecievedSykmelding = KafkaConsumer<String, String>(consumerProperties)
-
-    kafkaconsumerRecievedSykmelding.subscribe(
+    val kafkaconsumerApprec = KafkaConsumer<String, String>(consumerProperties)
+    kafkaconsumerApprec.subscribe(
         listOf(env.sm2013Apprec)
     )
+
+    val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
+    kafkaAivenConsumerApprec.subscribe(
+        listOf(env.apprecTopic)
+    )
+
     createListener(applicationState) {
         connectionFactory(env).createConnection(vaultServiceUser.serviceuserUsername, vaultServiceUser.serviceuserPassword).use { connection ->
             connection.start()
             val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
             val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
 
-            blockingApplicationLogic(applicationState, kafkaconsumerRecievedSykmelding, kvitteringsProducer, session)
+            blockingApplicationLogic(applicationState, kafkaconsumerApprec, kvitteringsProducer, session, kafkaAivenConsumerApprec)
         }
     }
 }
@@ -110,7 +127,8 @@ suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     kafkaConsumer: KafkaConsumer<String, String>,
     receiptProducer: MessageProducer,
-    session: Session
+    session: Session,
+    kafkaAivenConsumer: KafkaConsumer<String, String>,
 ) {
     while (applicationState.ready) {
         kafkaConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -121,7 +139,19 @@ suspend fun blockingApplicationLogic(
                 msgId = apprec.msgId
             )
 
-            handleMessage(apprec, receiptProducer, session, loggingMeta)
+            handleMessage(apprec, receiptProducer, session, loggingMeta, "on-prem")
+        }
+        delay(100)
+
+        kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
+            val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
+
+            val loggingMeta = LoggingMeta(
+                mottakId = apprec.ediloggid,
+                msgId = apprec.msgId
+            )
+
+            handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven")
         }
         delay(100)
     }
@@ -131,10 +161,11 @@ suspend fun handleMessage(
     apprec: Apprec,
     receiptProducer: MessageProducer,
     session: Session,
-    loggingMeta: LoggingMeta
+    loggingMeta: LoggingMeta,
+    source: String
 ) {
     wrapExceptions(loggingMeta) {
-        log.info("Received a SM2013, {}", fields(loggingMeta))
+        log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
                 sendReceipt(
