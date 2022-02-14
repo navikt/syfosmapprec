@@ -13,7 +13,7 @@ This project creates and sends a apprec to emottak, which in turn sends it on th
 
 #### Requirements
 
-* JDK 12
+* JDK 17
 
 ## Getting started
 ### Getting github-package-registry packages NAV-IT
