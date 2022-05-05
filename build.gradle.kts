@@ -5,34 +5,36 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val artemisVersion = "2.17.0"
-val coroutinesVersion = "1.5.2"
+val artemisVersion = "2.21.0"
+val coroutinesVersion = "1.6.1"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
-val jacksonVersion = "2.13.0"
+val jacksonVersion = "2.13.2"
+val jacksonPatchVersion = "2.13.2.2"
+val jacksonBomVersion = "2.13.2.20220328"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
-val kafkaVersion = "2.8.0"
+val kafkaVersion = "3.1.0"
 val kithHodemeldingVersion = "1.c22de09"
 val kithApprecVersion = "1.c22de09"
 val sykmeldingVersion = "1.c22de09"
 val kluentVersion = "1.68"
-val ktorVersion = "1.6.7"
-val logbackVersion = "1.2.7"
-val logstashEncoderVersion = "7.0.1"
-val prometheusVersion = "0.12.0"
-val smCommonVersion = "1.a92720c"
-val spekVersion = "2.0.17"
+val ktorVersion = "2.0.0"
+val logbackVersion = "1.2.11"
+val logstashEncoderVersion = "7.1.1"
+val prometheusVersion = "0.15.0"
+val smCommonVersion = "1.c55f4d2"
+val kotestVersion = "5.2.3"
 val confluentVersion = "6.2.2"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.6.0"
+val kotlinVersion = "1.6.20"
 
 plugins {
     java
-    kotlin("jvm") version "1.6.0"
-    id("org.jmailen.kotlinter") version "3.6.0"
-    id("com.diffplug.spotless") version "5.16.0"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    kotlin("jvm") version "1.6.20"
+    id("org.jmailen.kotlinter") version "3.10.0"
+    id("com.diffplug.spotless") version "6.5.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 val githubUser: String by project
@@ -56,6 +58,7 @@ dependencies {
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
 
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
@@ -68,6 +71,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.fasterxml.jackson:jackson-bom:$jacksonBomVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonPatchVersion")
+
     implementation("no.nav.helse.xml:xmlfellesformat:$fellesformatVersion")
     implementation("no.nav.helse.xml:kith-hodemelding:$kithHodemeldingVersion")
     implementation("no.nav.helse.xml:kith-apprec:$kithApprecVersion")
@@ -84,20 +90,12 @@ dependencies {
 
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("org.apache.activemq:artemis-server:$artemisVersion")
     testImplementation("org.apache.activemq:artemis-jms-client:$artemisVersion")
-
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion") {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    testRuntimeOnly ("org.spekframework.spek2:spek-runner-junit5:$spekVersion") {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-
 }
 
 
@@ -126,7 +124,6 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform {
-            includeEngines("spek2")
         }
         testLogging {
             showStandardStreams = true
