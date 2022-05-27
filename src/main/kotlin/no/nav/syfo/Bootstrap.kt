@@ -58,7 +58,6 @@ fun main() {
     )
 
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
-    applicationServer.start()
 
     DefaultExports.initialize()
 
@@ -70,14 +69,14 @@ fun main() {
         it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
     }
 
-    applicationState.ready = true
-
     launchListeners(
         applicationState,
         env,
         vaultServiceUser,
         consumerAivenProperties
     )
+
+    applicationServer.start()
 }
 
 @DelicateCoroutinesApi
@@ -88,6 +87,7 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
         } catch (e: TrackableException) {
             log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
         } finally {
+            applicationState.ready = false
             applicationState.alive = false
         }
     }
