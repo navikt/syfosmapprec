@@ -36,11 +36,10 @@ spec:
   kafka:
     pool: nav-prod
   vault:
-    enabled: true
-    paths:
-      - kvPath: serviceuser/data/prod/srvsyfosmapprec
-        mountPath: /secrets/serviceuser
-  webproxy: true
+    enabled: false
+  webproxy: false
+  envFrom:
+    - secret: syfosmapprec-secrets
   env:
     - name: MQ_HOST_NAME
       value: a01apvl271.adeo.no
