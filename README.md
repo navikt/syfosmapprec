@@ -59,3 +59,11 @@ To build locally and run the integration tests you can simply run `./gradlew sha
 
 #### Creating a docker image
 Creating a docker image should be as simple as `docker build -t syfosmapprec .`
+
+#### Running a docker image
+`docker run --rm -it -p 8080:8080 syfosmapprec`
+
+### Upgrading the gradle wrapper
+Find the newest version of gradle here: https://gradle.org/releases/ Then run this command:
+
+```./gradlew wrapper --gradle-version $gradleVersjon```
