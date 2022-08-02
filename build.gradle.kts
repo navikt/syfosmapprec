@@ -5,7 +5,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val artemisVersion = "2.21.0"
 val coroutinesVersion = "1.6.2"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
@@ -25,11 +24,12 @@ val smCommonVersion = "1.f132f2b"
 val kotestVersion = "5.3.1"
 val confluentVersion = "6.2.2"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.6.21"
+val kotlinVersion = "1.7.10"
+val junitJupiterVersion = "5.8.2"
 
 plugins {
     java
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("com.diffplug.spotless") version "6.5.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -85,13 +85,14 @@ dependencies {
     implementation("javax.activation:activation:$javaxActivationVersion")
 
 
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("org.apache.activemq:artemis-server:$artemisVersion")
-    testImplementation("org.apache.activemq:artemis-jms-client:$artemisVersion")
 }
 
 
@@ -119,10 +120,11 @@ tasks {
     }
 
     withType<Test> {
-        useJUnitPlatform {
-        }
+        useJUnitPlatform()
         testLogging {
             showStandardStreams = true
+            showStackTraces = true
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
     }
 

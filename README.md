@@ -1,7 +1,7 @@
 [![Build status](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)
 
 # SYFO Sykmelding Apprec
-This project creates and sends a apprec to emottak, which in turn sends it on the epj-system
+This project creates and sends an apprec to emottak, which in turn sends it on the epj-system
 
 
 # Technologies used
@@ -17,7 +17,7 @@ This project creates and sends a apprec to emottak, which in turn sends it on th
 
 ## Getting started
 ### Getting github-package-registry packages NAV-IT
-Some packages used in this repo is uploaded to the Github Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
+Some packages used in this repo is uploaded to the GitHub Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
 ```
 val githubUser: String by project
 val githubPassword: String by project
