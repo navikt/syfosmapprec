@@ -17,7 +17,7 @@ This project creates and sends a apprec to emottak, which in turn sends it on th
 
 ## Getting started
 ### Getting github-package-registry packages NAV-IT
-Some packages used in this repo is uploaded to the Github Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
+Some packages used in this repo is uploaded to the GitHub Package Registry which requires authentication. It can, for example, be solved like this in Gradle:
 ```
 val githubUser: String by project
 val githubPassword: String by project
@@ -67,3 +67,12 @@ Creating a docker image should be as simple as `docker build -t syfosmapprec .`
 Find the newest version of gradle here: https://gradle.org/releases/ Then run this command:
 
 ```./gradlew wrapper --gradle-version $gradleVersjon```
+
+### Contact
+
+This project is maintained by navikt/teamsykmelding
+
+Questions and/or feature requests? Please create an [issue](https://github.com/navikt/syfosmapprec/issues).
+
+If you work in [@navikt](https://github.com/navikt) you can reach us at the Slack
+channel [#team-sykmelding](https://nav-it.slack.com/archives/CMA3XV997).
