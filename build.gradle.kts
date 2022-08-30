@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val artemisVersion = "2.21.0"
+val artemisVersion = "2.23.1"
 val coroutinesVersion = "1.6.2"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
@@ -17,19 +17,19 @@ val kithHodemeldingVersion = "1.c22de09"
 val kithApprecVersion = "1.c22de09"
 val sykmeldingVersion = "1.c22de09"
 val kluentVersion = "1.68"
-val ktorVersion = "2.0.2"
+val ktorVersion = "2.1.0"
 val logbackVersion = "1.2.11"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.15.0"
 val smCommonVersion = "1.f132f2b"
-val kotestVersion = "5.3.1"
-val confluentVersion = "6.2.2"
+val kotestVersion = "5.4.2"
+val confluentVersion = "7.2.1"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.6.21"
+val kotlinVersion = "1.7.10"
 
 plugins {
     java
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
     id("org.jmailen.kotlinter") version "3.10.0"
     id("com.diffplug.spotless") version "6.5.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -122,7 +122,9 @@ tasks {
         useJUnitPlatform {
         }
         testLogging {
-            showStandardStreams = true
+            events("skipped", "failed")
+            showStackTraces = true
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
     }
 
