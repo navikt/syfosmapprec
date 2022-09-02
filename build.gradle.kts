@@ -6,7 +6,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val artemisVersion = "2.23.1"
-val coroutinesVersion = "1.6.2"
+val coroutinesVersion = "1.6.4"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "2.13.3"
@@ -18,10 +18,10 @@ val kithApprecVersion = "1.c22de09"
 val sykmeldingVersion = "1.c22de09"
 val kluentVersion = "1.68"
 val ktorVersion = "2.1.0"
-val logbackVersion = "1.2.11"
+val logbackVersion = "1.4.0"
 val logstashEncoderVersion = "7.2"
-val prometheusVersion = "0.15.0"
-val smCommonVersion = "1.f132f2b"
+val prometheusVersion = "0.16.0"
+val smCommonVersion = "1.d3282a0"
 val kotestVersion = "5.4.2"
 val confluentVersion = "7.2.1"
 val javaTimeAdapterVersion = "1.1.3"
@@ -90,7 +90,9 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("org.apache.activemq:artemis-server:$artemisVersion")
+    testImplementation("org.apache.activemq:artemis-server:$artemisVersion") {
+        exclude(group = "commons-collections", module = "commons-collections")
+    }
     testImplementation("org.apache.activemq:artemis-jms-client:$artemisVersion")
 }
 
