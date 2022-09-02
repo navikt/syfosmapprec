@@ -26,6 +26,7 @@ import no.nav.syfo.apprec.toApprecCV
 import no.nav.syfo.kafka.aiven.KafkaUtils
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.metrics.APPREC_COUNTER
+import no.nav.syfo.mq.MqTlsUtils
 import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -50,7 +51,8 @@ val objectMapper: ObjectMapper = ObjectMapper()
 @DelicateCoroutinesApi
 fun main() {
     val env = Environment()
-    val vaultServiceUser = VaultServiceUser()
+    val serviceUser = ServiceUser()
+    MqTlsUtils.getMqTlsConfig().forEach { key, value -> System.setProperty(key as String, value as String) }
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
         env,
@@ -72,7 +74,7 @@ fun main() {
     launchListeners(
         applicationState,
         env,
-        vaultServiceUser,
+        serviceUser,
         consumerAivenProperties
     )
 
@@ -96,7 +98,7 @@ fun createListener(applicationState: ApplicationState, action: suspend Coroutine
 fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
-    vaultServiceUser: VaultServiceUser,
+    serviceUser: ServiceUser,
     consumerAivenProperties: Properties
 ) {
     val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
@@ -105,7 +107,7 @@ fun launchListeners(
     )
 
     createListener(applicationState) {
-        connectionFactory(env).createConnection(vaultServiceUser.serviceuserUsername, vaultServiceUser.serviceuserPassword).use { connection ->
+        connectionFactory(env).createConnection(serviceUser.serviceuserUsername, serviceUser.serviceuserPassword).use { connection ->
             connection.start()
             val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
             val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
