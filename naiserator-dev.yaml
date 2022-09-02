@@ -40,6 +40,10 @@ spec:
   webproxy: false
   envFrom:
     - secret: syfosmapprec-secrets
+    - secret: syfosmapprec-keystore-pwd
+  filesFrom:
+    - mountPath: /var/run/keystore
+      secret: syfosmapprec-keystore
   env:
     - name: MQ_HOST_NAME
       value: b27apvl222.preprod.local
@@ -51,3 +55,5 @@ spec:
       value: Q1_SYFOSMAPPREC
     - name: MQ_APPREC_QUEUE_NAME
       value: QA.Q414.IU03_UTSENDING
+    - name: MQ_KEYSTORE_PATH
+      value: /var/run/keystore/syfosmapprec-keystore.jks
