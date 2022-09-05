@@ -46,7 +46,7 @@ spec:
       secret: syfosmapprec-keystore
   env:
     - name: MQ_HOST_NAME
-      value: a01apvl271.adeo.no
+      value: mpls04.adeo.no
     - name: MQ_PORT
       value: '1414'
     - name: MQ_GATEWAY_NAME
