@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val artemisVersion = "2.23.1"
+val artemisVersion = "2.25.0"
 val coroutinesVersion = "1.6.4"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
