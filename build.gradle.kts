@@ -5,7 +5,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val artemisVersion = "2.26.0"
 val coroutinesVersion = "1.6.4"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
@@ -84,16 +83,11 @@ dependencies {
     implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
     implementation("javax.activation:activation:$javaxActivationVersion")
 
-
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("org.apache.activemq:artemis-server:$artemisVersion") {
-        exclude(group = "commons-collections", module = "commons-collections")
-    }
-    testImplementation("org.apache.activemq:artemis-jms-client:$artemisVersion")
 }
 
 
