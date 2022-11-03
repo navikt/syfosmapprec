@@ -56,7 +56,7 @@ fun createApprec(
             XMLMottakenhetBlokk().apply {
                 ediLoggId = ediloggid
                 ebRole = SyfoSmApprecConstant.EBROLENAV.string
-                ebService = SyfoSmApprecConstant.EBSERVICESYKMELDING.string
+                ebService = apprec.ebService
                 ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
             }
         )

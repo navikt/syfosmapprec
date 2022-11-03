@@ -89,7 +89,7 @@ class ApprecMapperSpek : FunSpec({
             ff.get<XMLMottakenhetBlokk>().ebRole shouldBeEqualTo SyfoSmApprecConstant.EBROLENAV.string
         }
         test("Sets ebService") {
-            ff.get<XMLMottakenhetBlokk>().ebService shouldBeEqualTo SyfoSmApprecConstant.EBSERVICESYKMELDING.string
+            ff.get<XMLMottakenhetBlokk>().ebService shouldBeEqualTo "Sykmelding"
         }
         test("Sets ebAction") {
             ff.get<XMLMottakenhetBlokk>().ebAction shouldBeEqualTo SyfoSmApprecConstant.EBACTIONSVARMELDING.string
