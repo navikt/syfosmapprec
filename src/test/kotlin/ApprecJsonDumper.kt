@@ -57,7 +57,8 @@ fun main() {
             )
 
         ),
-        validationResult = null
+        validationResult = null,
+        ebService = "Sykmelding"
 
     )
 
