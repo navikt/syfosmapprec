@@ -1,7 +1,7 @@
 [![Build status](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)](https://github.com/navikt/syfosmapprec/workflows/Deploy%20to%20dev%20and%20prod/badge.svg)
 
 # SYFO Sykmelding Apprec
-This project creates and sends a apprec to emottak, which in turn sends it on the epj-system
+This project creates and sends an apprec message to eMottak, which in turn sends it to the epj-system
 
 
 # Technologies used
