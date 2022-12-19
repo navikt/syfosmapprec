@@ -37,7 +37,10 @@ class ApprecMapperSpek : FunSpec({
         val apprecErrorDuplicate = createApprecError("Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.")
         val ff = marshalAndUnmarshal(
             createApprec(
-                apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf()
+                apprec.ediloggid,
+                apprec,
+                ApprecStatus.AVVIST,
+                listOf()
             )
         )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)

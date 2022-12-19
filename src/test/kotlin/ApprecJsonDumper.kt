@@ -11,7 +11,6 @@ import no.nav.syfo.apprec.ApprecStatus
 import java.time.LocalDateTime
 
 fun main() {
-
     val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
         .registerKotlinModule()
