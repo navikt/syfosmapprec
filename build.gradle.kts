@@ -8,29 +8,30 @@ version = "1.0.0"
 val coroutinesVersion = "1.6.4"
 val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
-val jacksonVersion = "2.14.0"
+val jacksonVersion = "2.14.1"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.3.1"
 val kithHodemeldingVersion = "1.c22de09"
 val kithApprecVersion = "1.c22de09"
 val sykmeldingVersion = "1.c22de09"
-val kluentVersion = "1.68"
-val ktorVersion = "2.1.3"
+val kluentVersion = "1.72"
+val ktorVersion = "2.2.1"
 val logbackVersion = "1.4.5"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
 val smCommonVersion = "1.f00bce6"
-val kotestVersion = "5.5.0"
+val kotestVersion = "5.5.4"
 val confluentVersion = "7.2.1"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.7.21"
+val kotlinVersion = "1.7.22"
+val nettyCodecVersion = "4.1.86.Final"
 
 plugins {
     java
-    kotlin("jvm") version "1.7.21"
-    id("org.jmailen.kotlinter") version "3.10.0"
-    id("com.diffplug.spotless") version "6.5.0"
+    kotlin("jvm") version "1.7.22"
+    id("org.jmailen.kotlinter") version "3.12.0"
+    id("com.diffplug.spotless") version "6.11.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -57,6 +58,9 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    // This is to override version that is in io.ktor:ktor-server-netty
+    // https://www.cve.org/CVERecord?id=CVE-2022-41915
+    implementation("io.netty:netty-codec:$nettyCodecVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")

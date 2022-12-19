@@ -121,7 +121,7 @@ suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     receiptProducer: MessageProducer,
     session: Session,
-    kafkaAivenConsumer: KafkaConsumer<String, String>,
+    kafkaAivenConsumer: KafkaConsumer<String, String>
 ) {
     while (applicationState.ready) {
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -150,13 +150,21 @@ suspend fun handleMessage(
         if (apprec.apprecStatus == ApprecStatus.AVVIST) {
             if (apprec.validationResult != null) {
                 sendReceipt(
-                    session, receiptProducer, apprec, ApprecStatus.AVVIST, loggingMeta,
+                    session,
+                    receiptProducer,
+                    apprec,
+                    ApprecStatus.AVVIST,
+                    loggingMeta,
                     apprec.validationResult.ruleHits.map { it.toApprecCV() }
                 )
             } else {
                 sendReceipt(
-                    session, receiptProducer, apprec, ApprecStatus.AVVIST,
-                    loggingMeta, listOf(createApprecError(apprec.tekstTilSykmelder))
+                    session,
+                    receiptProducer,
+                    apprec,
+                    ApprecStatus.AVVIST,
+                    loggingMeta,
+                    listOf(createApprecError(apprec.tekstTilSykmelder))
                 )
             }
         } else {
