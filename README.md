@@ -8,7 +8,7 @@ This project creates and sends an apprec message to eMottak, which in turn sends
 * Kotlin
 * Ktor
 * Gradle
-* Kotest
+* Junit
 * Kafka
 * Mq
 
