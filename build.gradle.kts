@@ -15,21 +15,19 @@ val kafkaVersion = "3.3.1"
 val kithHodemeldingVersion = "1.c22de09"
 val kithApprecVersion = "1.c22de09"
 val sykmeldingVersion = "1.c22de09"
-val kluentVersion = "1.72"
 val ktorVersion = "2.2.1"
 val logbackVersion = "1.4.5"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
 val smCommonVersion = "1.1490275"
-val kotestVersion = "5.5.4"
-val confluentVersion = "7.2.1"
+val junitJupiterVersion = "5.9.0"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.7.22"
+val kotlinVersion = "1.8.0"
 val nettyCodecVersion = "4.1.86.Final"
 
 plugins {
     java
-    kotlin("jvm") version "1.7.22"
+    kotlin("jvm") version "1.8.0"
     id("org.jmailen.kotlinter") version "3.12.0"
     id("com.diffplug.spotless") version "6.11.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -66,7 +64,6 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -87,8 +84,9 @@ dependencies {
     implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
     implementation("javax.activation:activation:$javaxActivationVersion")
 
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
@@ -119,8 +117,7 @@ tasks {
     }
 
     withType<Test> {
-        useJUnitPlatform {
-        }
+        useJUnitPlatform {}
         testLogging {
             events("skipped", "failed")
             showStackTraces = true
