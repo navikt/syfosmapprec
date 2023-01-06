@@ -19,6 +19,7 @@ import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
+import no.nav.syfo.apprec.Apprec
 import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
@@ -29,6 +30,10 @@ import no.nav.syfo.metrics.APPREC_COUNTER
 import no.nav.syfo.mq.MqTlsUtils
 import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
+import no.nav.syfo.util.LoggingMeta
+import no.nav.syfo.util.TrackableException
+import no.nav.syfo.util.apprecFFJaxbMarshaller
+import no.nav.syfo.util.wrapExceptions
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer

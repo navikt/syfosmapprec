@@ -1,6 +1,5 @@
-package no.nav.syfo
+package no.nav.syfo.apprec
 
-import no.nav.syfo.apprec.ApprecStatus
 import no.nav.syfo.model.ValidationResult
 import java.time.LocalDateTime
 

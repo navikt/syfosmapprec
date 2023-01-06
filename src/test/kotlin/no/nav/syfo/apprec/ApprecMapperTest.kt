@@ -8,8 +8,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.apprecV1.XMLAppRec
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
-import no.nav.syfo.Apprec
-import no.nav.syfo.SyfoSmApprecConstant
 import no.nav.syfo.get
 import no.nav.syfo.serializeAppRec
 import no.nav.syfo.util.getDateTimeString
@@ -18,19 +16,24 @@ import org.junit.jupiter.api.Test
 import java.io.StringReader
 import java.time.LocalDateTime
 import javax.xml.bind.JAXBContext
+import javax.xml.bind.Unmarshaller
 
 internal class ApprecMapperTest {
-    val objectMapper = ObjectMapper()
+    private val objectMapper: ObjectMapper = ObjectMapper()
         .registerKotlinModule()
         .registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    val apprec: Apprec = objectMapper.readValue(Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8))
+    private val apprec: Apprec =
+        objectMapper.readValue(
+            Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8)
+        )
 
-    val apprecUnmarshaller = JAXBContext.newInstance(XMLEIFellesformat::class.java, XMLAppRec::class.java, XMLMottakenhetBlokk::class.java)
-        .createUnmarshaller()
+    private val apprecUnmarshaller: Unmarshaller =
+        JAXBContext.newInstance(XMLEIFellesformat::class.java, XMLAppRec::class.java, XMLMottakenhetBlokk::class.java)
+            .createUnmarshaller()
 
-    fun marshalAndUnmarshal(fellesformat: XMLEIFellesformat): XMLEIFellesformat =
+    private fun marshalAndUnmarshal(fellesformat: XMLEIFellesformat): XMLEIFellesformat =
         apprecUnmarshaller.unmarshal(StringReader(serializeAppRec(fellesformat))) as XMLEIFellesformat
 
     @Test
@@ -133,7 +136,7 @@ internal class ApprecMapperTest {
     @Test
     internal fun `OK AppRec sets ebRole to ebRoleNav`() {
         val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(SyfoSmApprecConstant.EBROLENAV.string, ff.get<XMLMottakenhetBlokk>().ebRole)
+        Assertions.assertEquals(ApprecConstant.EBROLENAV.string, ff.get<XMLMottakenhetBlokk>().ebRole)
     }
 
     @Test
@@ -145,19 +148,19 @@ internal class ApprecMapperTest {
     @Test
     internal fun `OK AppRec sets ebAction`() {
         val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(SyfoSmApprecConstant.EBACTIONSVARMELDING.string, ff.get<XMLMottakenhetBlokk>().ebAction)
+        Assertions.assertEquals(ApprecConstant.EBACTIONSVARMELDING.string, ff.get<XMLMottakenhetBlokk>().ebAction)
     }
 
     @Test
     internal fun `OK AppRec sets appRec message type`() {
         val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(SyfoSmApprecConstant.APPREC.string, ff.get<XMLAppRec>().msgType.v)
+        Assertions.assertEquals(ApprecConstant.APPREC.string, ff.get<XMLAppRec>().msgType.v)
     }
 
     @Test
     internal fun `OK AppRec sets appRec miGversion`() {
         val ff = marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(SyfoSmApprecConstant.APPRECVERSIONV1_0.string, ff.get<XMLAppRec>().miGversion)
+        Assertions.assertEquals(ApprecConstant.APPRECVERSIONV1_0.string, ff.get<XMLAppRec>().miGversion)
     }
 
     @Test

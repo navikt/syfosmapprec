@@ -23,7 +23,7 @@ internal class SelfTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_alive")) {
+            with(handleRequest(HttpMethod.Get, "/internal/is_alive")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("I'm alive! :)", response.content)
             }
@@ -40,7 +40,7 @@ internal class SelfTest {
             applicationState.alive = true
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_ready")) {
+            with(handleRequest(HttpMethod.Get, "/internal/is_ready")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("I'm ready! :)", response.content)
             }
@@ -57,7 +57,7 @@ internal class SelfTest {
             applicationState.alive = false
             application.routing { registerNaisApi(applicationState) }
 
-            with(handleRequest(HttpMethod.Get, "/is_alive")) {
+            with(handleRequest(HttpMethod.Get, "/internal/is_alive")) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("I'm dead x_x", response.content)
             }
@@ -73,7 +73,7 @@ internal class SelfTest {
             applicationState.ready = false
             applicationState.alive = false
             application.routing { registerNaisApi(applicationState) }
-            with(handleRequest(HttpMethod.Get, "/is_ready")) {
+            with(handleRequest(HttpMethod.Get, "/internal/is_ready")) {
                 assertEquals(HttpStatusCode.InternalServerError, response.status())
                 assertEquals("Please wait! I'm not ready :(", response.content)
             }

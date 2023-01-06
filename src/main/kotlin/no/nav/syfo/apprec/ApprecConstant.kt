@@ -1,6 +1,6 @@
-package no.nav.syfo
+package no.nav.syfo.apprec
 
-enum class SyfoSmApprecConstant(val string: String) {
+enum class ApprecConstant(val string: String) {
     APPREC("APPREC"),
     APPRECVERSIONV1_0("1.0 2004-11-21"),
     EBROLENAV("Saksbehandler"),
