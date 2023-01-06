@@ -2,12 +2,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.syfo.Apprec
-import no.nav.syfo.Helsepersonell
-import no.nav.syfo.Ident
-import no.nav.syfo.Kodeverdier
-import no.nav.syfo.Organisation
+import no.nav.syfo.apprec.Apprec
 import no.nav.syfo.apprec.ApprecStatus
+import no.nav.syfo.apprec.Helsepersonell
+import no.nav.syfo.apprec.Ident
+import no.nav.syfo.apprec.Kodeverdier
+import no.nav.syfo.apprec.Organisation
 import java.time.LocalDateTime
 
 fun main() {

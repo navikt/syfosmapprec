@@ -1,4 +1,4 @@
-package no.nav.syfo
+package no.nav.syfo.util
 
 import no.nav.helse.apprecV1.XMLAppRec
 import no.nav.helse.eiFellesformat.XMLEIFellesformat

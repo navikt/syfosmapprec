@@ -9,14 +9,8 @@ import no.nav.helse.apprecV1.XMLInst
 import no.nav.helse.apprecV1.XMLOriginalMsgId
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.helse.eiFellesformat.XMLMottakenhetBlokk
-import no.nav.syfo.Apprec
-import no.nav.syfo.Helsepersonell
-import no.nav.syfo.Ident
-import no.nav.syfo.Kodeverdier
-import no.nav.syfo.Organisation
-import no.nav.syfo.SyfoSmApprecConstant
-import no.nav.syfo.apprecJaxbMarshaller
 import no.nav.syfo.model.RuleInfo
+import no.nav.syfo.util.apprecJaxbMarshaller
 import no.nav.syfo.util.getDateTimeString
 import org.slf4j.LoggerFactory
 import org.w3c.dom.Element
@@ -55,9 +49,9 @@ fun createApprec(
         any.add(
             XMLMottakenhetBlokk().apply {
                 ediLoggId = ediloggid
-                ebRole = SyfoSmApprecConstant.EBROLENAV.string
+                ebRole = ApprecConstant.EBROLENAV.string
                 ebService = apprec.ebService
-                ebAction = SyfoSmApprecConstant.EBACTIONSVARMELDING.string
+                ebAction = ApprecConstant.EBACTIONSVARMELDING.string
             }
         )
 
@@ -65,9 +59,9 @@ fun createApprec(
             apprecToElement(
                 XMLAppRec().apply {
                     msgType = XMLCS().apply {
-                        v = SyfoSmApprecConstant.APPREC.string
+                        v = ApprecConstant.APPREC.string
                     }
-                    miGversion = SyfoSmApprecConstant.APPRECVERSIONV1_0.string
+                    miGversion = ApprecConstant.APPRECVERSIONV1_0.string
                     genDate = getDateTimeString(OffsetDateTime.now(ZoneOffset.UTC))
                     id = ediloggid
 

@@ -5,18 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.syfo.Apprec
 import no.nav.syfo.serializeAppRec
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 internal class ApprecMarshallerTest {
-    val objectMapper = ObjectMapper()
+    private val objectMapper: ObjectMapper = ObjectMapper()
         .registerKotlinModule()
         .registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    val apprec: Apprec = objectMapper.readValue(
+    private val apprec: Apprec = objectMapper.readValue(
         Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8)
     )
 
