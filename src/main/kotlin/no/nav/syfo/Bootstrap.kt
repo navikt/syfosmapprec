@@ -106,8 +106,6 @@ fun launchListeners(
     serviceUser: ServiceUser,
     consumerAivenProperties: Properties
 ) {
-    applicationState.ready = true
-
     val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
     kafkaAivenConsumerApprec.subscribe(
         listOf(env.apprecTopic)
