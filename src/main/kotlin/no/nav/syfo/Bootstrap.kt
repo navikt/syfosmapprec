@@ -163,11 +163,7 @@ suspend fun handleMessage(
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
 
-        log.info("cluster: $cluster")
-        log.info("apprec.senderOrganisasjon.navn: ${apprec.senderOrganisasjon.navn}")
-        log.info("apprec.mottakerOrganisasjon.navn: ${apprec.mottakerOrganisasjon.navn}")
-        log.info("apprec.ediloggid: ${apprec.ediloggid}")
-        if (isApprecFromMock(cluster, apprec.senderOrganisasjon)) {
+        if (isApprecFromMock(cluster, apprec.mottakerOrganisasjon.navn)) {
             log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
             if (apprec.apprecStatus == ApprecStatus.AVVIST) {
@@ -217,8 +213,8 @@ fun sendReceipt(
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
 
-fun isApprecFromMock(cluster: String, senderOrganisation: Organisation): Boolean =
-    cluster == "dev-gcp" && senderOrganisation.navn == "Kule helsetjenester AS"
+fun isApprecFromMock(cluster: String, mottakerOrganisasjonNavn: String): Boolean =
+    cluster == "dev-gcp" && mottakerOrganisasjonNavn == "Kule helsetjenester AS"
 
 fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
 
