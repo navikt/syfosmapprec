@@ -162,7 +162,7 @@ suspend fun handleMessage(
 ) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
-        if (isApprecFromMock(cluster, apprec.mottakerOrganisasjon)) {
+        if (isApprecFromMock(cluster, apprec.senderOrganisasjon)) {
             log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
             if (apprec.apprecStatus == ApprecStatus.AVVIST) {
@@ -212,8 +212,8 @@ fun sendReceipt(
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
 
-fun isApprecFromMock(cluster: String, mottakerOrganisation: Organisation): Boolean =
-    cluster == "dev-gcp" && mottakerOrganisation.navn == "Kule helsetjenester AS"
+fun isApprecFromMock(cluster: String, senderOrganisation: Organisation): Boolean =
+    cluster == "dev-gcp" && senderOrganisation.navn == "Kule helsetjenester AS"
 
 fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
 
