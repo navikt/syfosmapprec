@@ -21,7 +21,6 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.apprec.Apprec
 import no.nav.syfo.apprec.ApprecStatus
-import no.nav.syfo.apprec.Organisation
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
 import no.nav.syfo.apprec.toApprecCV
