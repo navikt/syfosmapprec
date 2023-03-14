@@ -21,6 +21,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
 import no.nav.syfo.apprec.Apprec
 import no.nav.syfo.apprec.ApprecStatus
+import no.nav.syfo.apprec.Organisation
 import no.nav.syfo.apprec.createApprec
 import no.nav.syfo.apprec.createApprecError
 import no.nav.syfo.apprec.toApprecCV
@@ -112,13 +113,20 @@ fun launchListeners(
     )
 
     createListener(applicationState) {
-        connectionFactory(env).createConnection(serviceUser.serviceuserUsername, serviceUser.serviceuserPassword).use { connection ->
-            connection.start()
-            val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-            val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
+        connectionFactory(env).createConnection(serviceUser.serviceuserUsername, serviceUser.serviceuserPassword)
+            .use { connection ->
+                connection.start()
+                val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+                val kvitteringsProducer = session.producerForQueue(env.apprecQueueName)
 
-            blockingApplicationLogic(applicationState, kvitteringsProducer, session, kafkaAivenConsumerApprec)
-        }
+                blockingApplicationLogic(
+                    applicationState,
+                    kvitteringsProducer,
+                    session,
+                    kafkaAivenConsumerApprec,
+                    env.cluster
+                )
+            }
     }
 }
 
@@ -126,7 +134,8 @@ suspend fun blockingApplicationLogic(
     applicationState: ApplicationState,
     receiptProducer: MessageProducer,
     session: Session,
-    kafkaAivenConsumer: KafkaConsumer<String, String>
+    kafkaAivenConsumer: KafkaConsumer<String, String>,
+    cluster: String
 ) {
     while (applicationState.ready) {
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -137,7 +146,7 @@ suspend fun blockingApplicationLogic(
                 msgId = apprec.msgId
             )
 
-            handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven")
+            handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven", cluster)
         }
         delay(100)
     }
@@ -148,32 +157,37 @@ suspend fun handleMessage(
     receiptProducer: MessageProducer,
     session: Session,
     loggingMeta: LoggingMeta,
-    source: String
+    source: String,
+    cluster: String
 ) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
-        if (apprec.apprecStatus == ApprecStatus.AVVIST) {
-            if (apprec.validationResult != null) {
-                sendReceipt(
-                    session,
-                    receiptProducer,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    loggingMeta,
-                    apprec.validationResult.ruleHits.map { it.toApprecCV() }
-                )
-            } else {
-                sendReceipt(
-                    session,
-                    receiptProducer,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    loggingMeta,
-                    listOf(createApprecError(apprec.tekstTilSykmelder))
-                )
-            }
+        if (isApprecFromMock(cluster, apprec.mottakerOrganisasjon)) {
+            log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
-            sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
+            if (apprec.apprecStatus == ApprecStatus.AVVIST) {
+                if (apprec.validationResult != null) {
+                    sendReceipt(
+                        session,
+                        receiptProducer,
+                        apprec,
+                        ApprecStatus.AVVIST,
+                        loggingMeta,
+                        apprec.validationResult.ruleHits.map { it.toApprecCV() }
+                    )
+                } else {
+                    sendReceipt(
+                        session,
+                        receiptProducer,
+                        apprec,
+                        ApprecStatus.AVVIST,
+                        loggingMeta,
+                        listOf(createApprecError(apprec.tekstTilSykmelder))
+                    )
+                }
+            } else {
+                sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
+            }
         }
     }
 }
@@ -197,6 +211,9 @@ fun sendReceipt(
     )
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
+
+fun isApprecFromMock(cluster: String, mottakerOrganisation: Organisation): Boolean =
+    cluster == "dev-gcp" && mottakerOrganisation.navn == "Kule helsetjenester AS"
 
 fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
 
