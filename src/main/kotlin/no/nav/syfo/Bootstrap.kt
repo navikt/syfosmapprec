@@ -162,6 +162,11 @@ suspend fun handleMessage(
 ) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
+
+        log.info("cluster: $cluster")
+        log.info("apprec.senderOrganisasjon.navn: ${apprec.senderOrganisasjon.navn}")
+        log.info("apprec.mottakerOrganisasjon.navn: ${apprec.mottakerOrganisasjon.navn}")
+        log.info("apprec.ediloggid: ${apprec.ediloggid}")
         if (isApprecFromMock(cluster, apprec.senderOrganisasjon)) {
             log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
