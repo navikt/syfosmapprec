@@ -44,6 +44,8 @@ import java.util.Properties
 import javax.jms.MessageProducer
 import javax.jms.Session
 import javax.xml.bind.Marshaller
+import no.nav.syfo.metrics.APPREC_INVALID
+import no.nav.syfo.metrics.APPREC_OK
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
@@ -166,6 +168,7 @@ suspend fun handleMessage(
             log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
             if (apprec.apprecStatus == ApprecStatus.AVVIST) {
+                APPREC_INVALID.inc()
                 if (apprec.validationResult != null) {
                     sendReceipt(
                         session,
@@ -186,6 +189,7 @@ suspend fun handleMessage(
                     )
                 }
             } else {
+                APPREC_OK.inc()
                 sendReceipt(session, receiptProducer, apprec, ApprecStatus.OK, loggingMeta)
             }
         }
