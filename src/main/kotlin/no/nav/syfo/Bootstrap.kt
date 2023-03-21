@@ -27,6 +27,8 @@ import no.nav.syfo.apprec.toApprecCV
 import no.nav.syfo.kafka.aiven.KafkaUtils
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.metrics.APPREC_COUNTER
+import no.nav.syfo.metrics.APPREC_INVALID
+import no.nav.syfo.metrics.APPREC_OK
 import no.nav.syfo.mq.MqTlsUtils
 import no.nav.syfo.mq.connectionFactory
 import no.nav.syfo.mq.producerForQueue
@@ -44,8 +46,6 @@ import java.util.Properties
 import javax.jms.MessageProducer
 import javax.jms.Session
 import javax.xml.bind.Marshaller
-import no.nav.syfo.metrics.APPREC_INVALID
-import no.nav.syfo.metrics.APPREC_OK
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
