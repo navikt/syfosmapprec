@@ -22,13 +22,13 @@ val prometheusVersion = "0.16.0"
 val smCommonVersion = "1.9df1108"
 val junitJupiterVersion = "5.9.0"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.8.10"
+val kotlinVersion = "1.8.20"
 val nettyCodecVersion = "4.1.86.Final"
 
 plugins {
     java
-    kotlin("jvm") version "1.8.10"
-    id("org.jmailen.kotlinter") version "3.12.0"
+    kotlin("jvm") version "1.8.20"
+    id("org.jmailen.kotlinter") version "3.14.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
