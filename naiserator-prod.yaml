@@ -44,6 +44,14 @@ spec:
   filesFrom:
     - mountPath: /var/run/keystore
       secret: syfosmapprec-keystore
+  accessPolicy:
+    outbound:
+      external:
+        - host: mpls04.adeo.no
+          ports:
+            - name: mq
+              port: 1414
+              protocol: TCP
   env:
     - name: MQ_HOST_NAME
       value: mpls04.adeo.no
