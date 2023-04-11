@@ -23,7 +23,6 @@ val smCommonVersion = "1.9df1108"
 val junitJupiterVersion = "5.9.2"
 val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "1.8.20"
-val nettyCodecVersion = "4.1.86.Final"
 
 plugins {
     java
@@ -54,9 +53,6 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    // This is to override version that is in io.ktor:ktor-server-netty
-    // https://www.cve.org/CVERecord?id=CVE-2022-41915
-    implementation("io.netty:netty-codec:$nettyCodecVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
