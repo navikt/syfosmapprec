@@ -23,7 +23,7 @@ val smCommonVersion = "1.9df1108"
 val junitJupiterVersion = "5.9.0"
 val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "1.8.20"
-val nettyCodecVersion = "4.1.86.Final"
+val nettyCodecVersion = "4.1.91.Final"
 
 plugins {
     java
