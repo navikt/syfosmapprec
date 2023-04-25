@@ -22,7 +22,7 @@ val prometheusVersion = "0.16.0"
 val smCommonVersion = "1.9df1108"
 val junitJupiterVersion = "5.9.2"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.8.20"
+val kotlinVersion = "1.8.21"
 
 plugins {
     java
