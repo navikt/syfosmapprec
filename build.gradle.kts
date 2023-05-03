@@ -6,23 +6,22 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.6.4"
-val fellesformatVersion = "1.c22de09"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "2.15.0"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.4.0"
-val kithHodemeldingVersion = "1.c22de09"
-val kithApprecVersion = "1.c22de09"
-val sykmeldingVersion = "1.c22de09"
+val syfoXmlCodegenVersion = "1.0.4"
 val ktorVersion = "2.3.0"
 val logbackVersion = "1.4.6"
 val logstashEncoderVersion = "7.3"
 val prometheusVersion = "0.16.0"
-val smCommonVersion = "1.9df1108"
+val smCommonVersion = "1.0.1"
 val junitJupiterVersion = "5.9.3"
 val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "1.8.21"
+val commonsCodecVersion = "1.15"
+
 
 plugins {
     java
@@ -64,10 +63,10 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
-    implementation("no.nav.helse.xml:xmlfellesformat:$fellesformatVersion")
-    implementation("no.nav.helse.xml:kith-hodemelding:$kithHodemeldingVersion")
-    implementation("no.nav.helse.xml:kith-apprec:$kithApprecVersion")
-    implementation("no.nav.helse.xml:sm2013:$sykmeldingVersion")
+    implementation("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVersion")
+    implementation("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVersion")
+    implementation("no.nav.helse.xml:kith-apprec:$syfoXmlCodegenVersion")
+    implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
 
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
     implementation("no.nav.helse:syfosm-common-mq:$smCommonVersion")
@@ -84,6 +83,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
+    // override transient version from io.ktor:ktor-client-apache
+    testImplementation("commons-codec:commons-codec:$commonsCodecVersion")
 }
 
 

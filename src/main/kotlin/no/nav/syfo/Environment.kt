@@ -11,12 +11,12 @@ data class Environment(
     override val mqChannelName: String = getEnvVar("MQ_CHANNEL_NAME"),
     val apprecQueueName: String = getEnvVar("MQ_APPREC_QUEUE_NAME"),
     val apprecTopic: String = "teamsykmelding.sykmelding-apprec",
-    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
+    val cluster: String = getEnvVar("NAIS_CLUSTER_NAME"),
 ) : MqConfig
 
 data class ServiceUser(
     val serviceuserUsername: String = getEnvVar("SERVICEUSER_USERNAME"),
-    val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD")
+    val serviceuserPassword: String = getEnvVar("SERVICEUSER_PASSWORD"),
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =

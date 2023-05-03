@@ -31,8 +31,8 @@ fun main() {
             tilleggsIdenter = listOf(
                 Ident(
                     id = "223456789",
-                    typeId = Kodeverdier(beskrivelse = "Organisasjonsnummeret i Enhetsregister (Brønnøysund)", verdi = "ENH")
-                )
+                    typeId = Kodeverdier(beskrivelse = "Organisasjonsnummeret i Enhetsregister (Brønnøysund)", verdi = "ENH"),
+                ),
             ),
             helsepersonell = Helsepersonell(
                 navn = "Per Hansen",
@@ -40,10 +40,10 @@ fun main() {
                 typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                 tilleggsIdenter = listOf(
                     Ident(id = "04030350265", typeId = Kodeverdier(beskrivelse = "Fødselsnummer", verdi = "FNR")),
-                    Ident(id = "12343568", typeId = Kodeverdier(beskrivelse = "HPR-nummer", verdi = "HPR"))
-                )
+                    Ident(id = "12343568", typeId = Kodeverdier(beskrivelse = "HPR-nummer", verdi = "HPR")),
+                ),
 
-            )
+            ),
         ),
         senderOrganisasjon = Organisation(
             hovedIdent = Ident(id = "1234556", typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")),
@@ -51,13 +51,13 @@ fun main() {
             tilleggsIdenter = listOf(
                 Ident(
                     id = "1234556",
-                    typeId = Kodeverdier(beskrivelse = "Organisasjonsnummeret i Enhetsregister (Brønnøysund)", verdi = "ENH")
-                )
-            )
+                    typeId = Kodeverdier(beskrivelse = "Organisasjonsnummeret i Enhetsregister (Brønnøysund)", verdi = "ENH"),
+                ),
+            ),
 
         ),
         validationResult = null,
-        ebService = "Sykmelding"
+        ebService = "Sykmelding",
 
     )
 
