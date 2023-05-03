@@ -33,7 +33,7 @@ fun createApprec(
     ediloggid: String,
     apprec: Apprec,
     apprecStatus: ApprecStatus,
-    apprecErrors: List<AppRecCV>
+    apprecErrors: List<AppRecCV>,
 ): XMLEIFellesformat {
     val msgInfotypeVerdi = apprec.msgTypeVerdi
     val msgInfotypeBeskrivelse = apprec.msgTypeBeskrivelse
@@ -52,7 +52,7 @@ fun createApprec(
                 ebRole = ApprecConstant.EBROLENAV.string
                 ebService = apprec.ebService
                 ebAction = ApprecConstant.EBACTIONSVARMELDING.string
-            }
+            },
         )
 
         any.add(
@@ -88,8 +88,8 @@ fun createApprec(
                     }
 
                     error.addAll(apprecErrors)
-                }
-            )
+                },
+            ),
         )
     }
 

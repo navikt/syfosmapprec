@@ -2,7 +2,7 @@ package no.nav.syfo.util
 
 data class LoggingMeta(
     val mottakId: String,
-    val msgId: String
+    val msgId: String,
 )
 
 class TrackableException(override val cause: Throwable, val loggingMeta: LoggingMeta) : RuntimeException()

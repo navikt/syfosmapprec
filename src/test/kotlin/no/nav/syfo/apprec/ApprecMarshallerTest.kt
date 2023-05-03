@@ -16,7 +16,7 @@ internal class ApprecMarshallerTest {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     private val apprec: Apprec = objectMapper.readValue(
-        Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8)
+        Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8),
     )
 
     @Test
@@ -26,7 +26,7 @@ internal class ApprecMarshallerTest {
 
         Assertions.assertEquals(
             true,
-            serializedApprec.contains("<AppRec xmlns=\"http://www.kith.no/xmlstds/apprec/2004-11-21\">")
+            serializedApprec.contains("<AppRec xmlns=\"http://www.kith.no/xmlstds/apprec/2004-11-21\">"),
         )
     }
 }

@@ -63,7 +63,7 @@ fun main() {
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
         env,
-        applicationState
+        applicationState,
     )
 
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
@@ -72,7 +72,7 @@ fun main() {
 
     val consumerAivenProperties = KafkaUtils.getAivenKafkaConfig().toConsumerConfig(
         "${env.applicationName}-consumer",
-        StringDeserializer::class
+        StringDeserializer::class,
     ).also {
         it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
         it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
@@ -82,7 +82,7 @@ fun main() {
         applicationState,
         env,
         serviceUser,
-        consumerAivenProperties
+        consumerAivenProperties,
     )
 
     applicationServer.start()
@@ -106,11 +106,11 @@ fun launchListeners(
     applicationState: ApplicationState,
     env: Environment,
     serviceUser: ServiceUser,
-    consumerAivenProperties: Properties
+    consumerAivenProperties: Properties,
 ) {
     val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
     kafkaAivenConsumerApprec.subscribe(
-        listOf(env.apprecTopic)
+        listOf(env.apprecTopic),
     )
 
     createListener(applicationState) {
@@ -125,7 +125,7 @@ fun launchListeners(
                     kvitteringsProducer,
                     session,
                     kafkaAivenConsumerApprec,
-                    env.cluster
+                    env.cluster,
                 )
             }
     }
@@ -136,7 +136,7 @@ suspend fun blockingApplicationLogic(
     receiptProducer: MessageProducer,
     session: Session,
     kafkaAivenConsumer: KafkaConsumer<String, String>,
-    cluster: String
+    cluster: String,
 ) {
     while (applicationState.ready) {
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
@@ -144,7 +144,7 @@ suspend fun blockingApplicationLogic(
 
             val loggingMeta = LoggingMeta(
                 mottakId = apprec.ediloggid,
-                msgId = apprec.msgId
+                msgId = apprec.msgId,
             )
 
             handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven", cluster)
@@ -159,7 +159,7 @@ suspend fun handleMessage(
     session: Session,
     loggingMeta: LoggingMeta,
     source: String,
-    cluster: String
+    cluster: String,
 ) {
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
@@ -178,7 +178,7 @@ suspend fun handleMessage(
                         apprec,
                         ApprecStatus.AVVIST,
                         loggingMeta,
-                        apprec.validationResult.ruleHits.map { it.toApprecCV() }
+                        apprec.validationResult.ruleHits.map { it.toApprecCV() },
                     )
                 } else {
                     sendReceipt(
@@ -187,7 +187,7 @@ suspend fun handleMessage(
                         apprec,
                         ApprecStatus.AVVIST,
                         loggingMeta,
-                        listOf(createApprecError(apprec.tekstTilSykmelder))
+                        listOf(createApprecError(apprec.tekstTilSykmelder)),
                     )
                 }
             } else {
@@ -204,7 +204,7 @@ fun sendReceipt(
     apprec: Apprec,
     apprecStatus: ApprecStatus,
     loggingMeta: LoggingMeta,
-    apprecErrors: List<XMLCV> = listOf()
+    apprecErrors: List<XMLCV> = listOf(),
 ) {
     val ediloggid = apprec.ediloggid
 
@@ -213,7 +213,7 @@ fun sendReceipt(
         session.createTextMessage().apply {
             val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
             text = serializeAppRec(apprecFellesformat)
-        }
+        },
     )
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
