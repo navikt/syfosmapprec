@@ -10,14 +10,20 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 internal class ApprecMarshallerTest {
-    private val objectMapper: ObjectMapper = ObjectMapper()
-        .registerKotlinModule()
-        .registerModule(JavaTimeModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper: ObjectMapper =
+        ObjectMapper()
+            .registerKotlinModule()
+            .registerModule(JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    private val apprec: Apprec = objectMapper.readValue(
-        Apprec::class.java.getResourceAsStream("/apprecOK.json")!!.readBytes().toString(Charsets.UTF_8),
-    )
+    private val apprec: Apprec =
+        objectMapper.readValue(
+            Apprec::class
+                .java
+                .getResourceAsStream("/apprecOK.json")!!
+                .readBytes()
+                .toString(Charsets.UTF_8),
+        )
 
     @Test
     internal fun `Serializing a apprec results in a XML without namespace prefixes`() {
@@ -26,7 +32,9 @@ internal class ApprecMarshallerTest {
 
         Assertions.assertEquals(
             true,
-            serializedApprec.contains("<AppRec xmlns=\"http://www.kith.no/xmlstds/apprec/2004-11-21\">"),
+            serializedApprec.contains(
+                "<AppRec xmlns=\"http://www.kith.no/xmlstds/apprec/2004-11-21\">"
+            ),
         )
     }
 }

@@ -1,9 +1,9 @@
 package no.nav.syfo.util
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 internal class DateTimeTest {
     @Test

@@ -7,6 +7,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.prometheus.client.hotspot.DefaultExports
+import java.io.StringWriter
+import java.time.Duration
+import java.util.Properties
+import javax.jms.MessageProducer
+import javax.jms.Session
+import javax.xml.bind.Marshaller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -40,43 +46,44 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
-import java.io.StringWriter
-import java.time.Duration
-import java.util.Properties
-import javax.jms.MessageProducer
-import javax.jms.Session
-import javax.xml.bind.Marshaller
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
-val objectMapper: ObjectMapper = ObjectMapper()
-    .registerModule(JavaTimeModule())
-    .registerKotlinModule()
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+val objectMapper: ObjectMapper =
+    ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .registerKotlinModule()
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 @DelicateCoroutinesApi
 fun main() {
     val env = Environment()
     val serviceUser = ServiceUser()
-    MqTlsUtils.getMqTlsConfig().forEach { key, value -> System.setProperty(key as String, value as String) }
+    MqTlsUtils.getMqTlsConfig().forEach { key, value ->
+        System.setProperty(key as String, value as String)
+    }
     val applicationState = ApplicationState()
-    val applicationEngine = createApplicationEngine(
-        env,
-        applicationState,
-    )
+    val applicationEngine =
+        createApplicationEngine(
+            env,
+            applicationState,
+        )
 
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
 
     DefaultExports.initialize()
 
-    val consumerAivenProperties = KafkaUtils.getAivenKafkaConfig().toConsumerConfig(
-        "${env.applicationName}-consumer",
-        StringDeserializer::class,
-    ).also {
-        it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
-        it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
-    }
+    val consumerAivenProperties =
+        KafkaUtils.getAivenKafkaConfig()
+            .toConsumerConfig(
+                "${env.applicationName}-consumer",
+                StringDeserializer::class,
+            )
+            .also {
+                it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
+                it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
+            }
 
     launchListeners(
         applicationState,
@@ -89,12 +96,19 @@ fun main() {
 }
 
 @DelicateCoroutinesApi
-fun createListener(applicationState: ApplicationState, action: suspend CoroutineScope.() -> Unit): Job =
+fun createListener(
+    applicationState: ApplicationState,
+    action: suspend CoroutineScope.() -> Unit
+): Job =
     GlobalScope.launch {
         try {
             action()
         } catch (e: TrackableException) {
-            log.error("En uhåndtert feil oppstod, applikasjonen restarter {}", fields(e.loggingMeta), e.cause)
+            log.error(
+                "En uhåndtert feil oppstod, applikasjonen restarter {}",
+                fields(e.loggingMeta),
+                e.cause
+            )
         } finally {
             applicationState.ready = false
             applicationState.alive = false
@@ -114,7 +128,8 @@ fun launchListeners(
     )
 
     createListener(applicationState) {
-        connectionFactory(env).createConnection(serviceUser.serviceuserUsername, serviceUser.serviceuserPassword)
+        connectionFactory(env)
+            .createConnection(serviceUser.serviceuserUsername, serviceUser.serviceuserPassword)
             .use { connection ->
                 connection.start()
                 val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
@@ -142,10 +157,11 @@ suspend fun blockingApplicationLogic(
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
             val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
 
-            val loggingMeta = LoggingMeta(
-                mottakId = apprec.ediloggid,
-                msgId = apprec.msgId,
-            )
+            val loggingMeta =
+                LoggingMeta(
+                    mottakId = apprec.ediloggid,
+                    msgId = apprec.msgId,
+                )
 
             handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven", cluster)
         }
@@ -164,8 +180,9 @@ suspend fun handleMessage(
     wrapExceptions(loggingMeta) {
         log.info("Received a SM2013 from $source, {}", fields(loggingMeta))
 
-        if (isApprecFromMock(cluster, apprec.mottakerOrganisasjon.navn) ||
-            isApprecFromTestNorge(cluster, apprec.mottakerOrganisasjon.navn)
+        if (
+            isApprecFromMock(cluster, apprec.mottakerOrganisasjon.navn) ||
+                isApprecFromTestNorge(cluster, apprec.mottakerOrganisasjon.navn)
         ) {
             log.info("Skip sending apprec, from mock {}", fields(loggingMeta))
         } else {
@@ -226,9 +243,10 @@ fun isApprecFromTestNorge(cluster: String, mottakerOrganisasjonNavn: String): Bo
 
 fun serializeAppRec(fellesformat: XMLEIFellesformat) = apprecFFJaxbMarshaller.toString(fellesformat)
 
-fun Marshaller.toString(input: Any): String = StringWriter().use {
-    marshal(input, it)
-    it.toString()
-}
+fun Marshaller.toString(input: Any): String =
+    StringWriter().use {
+        marshal(input, it)
+        it.toString()
+    }
 
 inline fun <reified T> XMLEIFellesformat.get(): T = any.find { it is T } as T
