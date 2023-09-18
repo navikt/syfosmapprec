@@ -75,7 +75,7 @@ fun main() {
     DefaultExports.initialize()
 
     val consumerAivenProperties =
-        KafkaUtils.getAivenKafkaConfig()
+        KafkaUtils.getAivenKafkaConfig("apprec-consumer")
             .toConsumerConfig(
                 "${env.applicationName}-consumer",
                 StringDeserializer::class,
