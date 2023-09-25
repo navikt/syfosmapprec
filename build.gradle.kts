@@ -33,17 +33,10 @@ application {
     mainClass.set("no.nav.syfo.BootstrapKt")
 }
 
-val githubUser: String by project
-val githubPassword: String by project
-
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/navikt/syfosm-common")
-        credentials {
-            username = githubUser
-            password = githubPassword
-        }
+        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
 }
 
@@ -75,7 +68,7 @@ dependencies {
     implementation("no.nav.helse:syfosm-common-mq:$smCommonVersion")
     implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
 
-    implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
+    implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
     implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
     implementation("javax.activation:activation:$javaxActivationVersion")
@@ -87,8 +80,11 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    // override transient version from io.ktor:ktor-client-apache
-    testImplementation("commons-codec:commons-codec:$commonsCodecVersion")
+    constraints {
+        implementation("commons-codec:commons-codec:$commonsCodecVersion") {
+            because("override transient from io.ktor:ktor-server-test-host")
+        }
+    }
 }
 
 
