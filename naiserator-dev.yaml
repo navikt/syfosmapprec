@@ -45,9 +45,7 @@ spec:
       external:
         - host: b27apvl222.preprod.local
           ports:
-            - name: mq
-              port: 1413
-              protocol: TCP
+            - port: 1413
   env:
     - name: MQ_HOST_NAME
       value: b27apvl222.preprod.local
