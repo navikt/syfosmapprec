@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.logstash.logback.argument.StructuredArguments.fields
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.helse.apprecV1.XMLCV
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
 import no.nav.syfo.application.ApplicationServer
@@ -226,13 +227,13 @@ fun sendReceipt(
     val ediloggid = apprec.ediloggid
 
     APPREC_COUNTER.inc()
-    receiptProducer.send(
+    val message =
         session.createTextMessage().apply {
             val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
             text = serializeAppRec(apprecFellesformat)
-        },
-    )
-    log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
+        }
+    receiptProducer.send(message)
+    log.info("Apprec sendt til emottak, {} {}", fields(loggingMeta), kv("message", message.text))
 }
 
 fun isApprecFromMock(cluster: String, mottakerOrganisasjonNavn: String): Boolean =
