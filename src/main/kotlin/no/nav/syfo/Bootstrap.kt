@@ -232,8 +232,10 @@ fun sendReceipt(
             val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
             text = serializeAppRec(apprecFellesformat)
         }
-    receiptProducer.send(message)
-    log.info("Apprec sendt til emottak, {} {}", fields(loggingMeta), kv("message", message.text))
+    log.info("{}", kv("message text", message.text))
+
+    receiptProducer.send(message,)
+    log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }
 
 fun isApprecFromMock(cluster: String, mottakerOrganisasjonNavn: String): Boolean =
