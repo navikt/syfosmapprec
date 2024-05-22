@@ -17,7 +17,7 @@ val prometheusVersion = "0.16.0"
 val smCommonVersion = "2.0.8"
 val junitJupiterVersion = "5.10.2"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "1.9.24"
+val kotlinVersion = "2.0.0"
 val commonsCodecVersion = "1.17.0"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.5"
@@ -25,7 +25,7 @@ val jsonVersion = "20240303"
 
 plugins {
     id("application")
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "2.0.0"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
