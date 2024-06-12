@@ -1,5 +1,6 @@
 package no.nav.syfo.apprec
 
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.xml.parsers.DocumentBuilderFactory
@@ -27,6 +28,7 @@ fun apprecToElement(apprec: XMLAppRec): Element {
     return document.documentElement
 }
 
+@WithSpan
 fun createApprec(
     ediloggid: String,
     apprec: Apprec,
