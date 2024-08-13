@@ -14,7 +14,6 @@ val ktorVersion = "2.3.12"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "8.0"
 val prometheusVersion = "0.16.0"
-val smCommonVersion = "2.0.8"
 val junitJupiterVersion = "5.10.3"
 val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "2.0.10"
@@ -23,6 +22,7 @@ val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.6"
 val jsonVersion = "20240303"
 val opentelemetryVersion = "2.6.0"
+val ibmMqVersion = "9.4.0.0"
 
 plugins {
     id("application")
@@ -72,14 +72,14 @@ dependencies {
     implementation("no.nav.helse.xml:kith-apprec:$syfoXmlCodegenVersion")
     implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
 
-    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
-    implementation("no.nav.helse:syfosm-common-mq:$smCommonVersion")
+    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    implementation("com.ibm.mq:com.ibm.mq.allclient:$ibmMqVersion")
     constraints {
         implementation("org.json:json:$jsonVersion") {
             because("override transient from com.ibm.mq:com.ibm.mq.allclient")
         }
     }
-    implementation("no.nav.helse:syfosm-common-models:$smCommonVersion")
+
 
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
