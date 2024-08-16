@@ -20,7 +20,6 @@ val kotlinVersion = "2.0.10"
 val commonsCodecVersion = "1.17.1"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.6"
-val jsonVersion = "20240303"
 val opentelemetryVersion = "2.6.0"
 val ibmMqVersion = "9.4.0.0"
 
@@ -28,7 +27,7 @@ plugins {
     id("application")
     kotlin("jvm") version "2.0.10"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 application {
@@ -73,13 +72,7 @@ dependencies {
     implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
 
     implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    implementation("com.ibm.mq:com.ibm.mq.allclient:$ibmMqVersion")
-    constraints {
-        implementation("org.json:json:$jsonVersion") {
-            because("override transient from com.ibm.mq:com.ibm.mq.allclient")
-        }
-    }
-
+    implementation("com.ibm.mq:com.ibm.mq.jakarta.client:$ibmMqVersion")
 
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
