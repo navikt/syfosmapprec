@@ -20,7 +20,7 @@ val kotlinVersion = "2.0.10"
 val commonsCodecVersion = "1.17.1"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.6"
-val opentelemetryVersion = "2.6.0"
+val opentelemetryVersion = "2.7.0"
 val ibmMqVersion = "9.4.0.0"
 
 plugins {
