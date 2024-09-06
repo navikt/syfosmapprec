@@ -44,10 +44,6 @@ spec:
     pool: nav-prod
   envFrom:
     - secret: syfosmapprec-secrets
-    - secret: syfosmapprec-keystore-pwd
-  filesFrom:
-    - mountPath: /var/run/keystore
-      secret: syfosmapprec-keystore
   accessPolicy:
     outbound:
       external:
@@ -65,5 +61,3 @@ spec:
       value: P_SYFOSMAPPREC
     - name: MQ_APPREC_QUEUE_NAME
       value: QA.P414.IU03_UTSENDING
-    - name: MQ_KEYSTORE_PATH
-      value: /var/run/keystore/syfosmapprec-keystore.jks
