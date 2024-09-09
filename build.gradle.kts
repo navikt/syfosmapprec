@@ -11,7 +11,7 @@ val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.8.0"
 val syfoXmlCodegenVersion = "2.0.1"
 val ktorVersion = "2.3.12"
-val logbackVersion = "1.5.7"
+val logbackVersion = "1.5.8"
 val logstashEncoderVersion = "8.0"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "5.11.0"
@@ -21,7 +21,7 @@ val commonsCodecVersion = "1.17.1"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.6"
 val opentelemetryVersion = "2.7.0"
-val ibmMqVersion = "9.4.0.0"
+val ibmMqVersion = "9.4.0.5"
 
 plugins {
     id("application")
