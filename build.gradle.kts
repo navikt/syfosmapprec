@@ -19,7 +19,7 @@ val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "2.0.20"
 val commonsCodecVersion = "1.17.1"
 val ktfmtVersion = "0.44"
-val snappyJavaVersion = "1.1.10.6"
+val snappyJavaVersion = "1.1.10.7"
 val opentelemetryVersion = "2.7.0"
 val ibmMqVersion = "9.4.0.5"
 
@@ -27,7 +27,7 @@ plugins {
     id("application")
     kotlin("jvm") version "2.0.20"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.gradleup.shadow") version "8.3.0"
+    id("com.gradleup.shadow") version "8.3.1"
 }
 
 application {
