@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransf
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.8.1"
+val coroutinesVersion = "1.9.0"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "2.17.2"
 val jaxbApiVersion = "2.4.0-b180830.0359"
@@ -20,7 +20,7 @@ val kotlinVersion = "2.0.20"
 val commonsCodecVersion = "1.17.1"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.7"
-val opentelemetryVersion = "2.7.0"
+val opentelemetryVersion = "2.8.0"
 val ibmMqVersion = "9.4.0.5"
 
 plugins {
