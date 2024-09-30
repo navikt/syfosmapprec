@@ -5,7 +5,7 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.9.0"
 val javaxActivationVersion = "1.1.1"
-val jacksonVersion = "2.17.2"
+val jacksonVersion = "2.18.0"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.8.0"
