@@ -3,30 +3,30 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransf
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.9.0"
+val coroutinesVersion = "1.10.1"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "2.18.2"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.9.0"
 val syfoXmlCodegenVersion = "2.0.1"
-val ktorVersion = "3.0.1"
-val logbackVersion = "1.5.12"
+val ktorVersion = "3.0.3"
+val logbackVersion = "1.5.16"
 val logstashEncoderVersion = "8.0"
 val prometheusVersion = "0.16.0"
-val junitJupiterVersion = "5.11.3"
+val junitJupiterVersion = "5.11.4"
 val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "2.1.0"
-val commonsCodecVersion = "1.17.1"
+val commonsCodecVersion = "1.17.2"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.7"
-val opentelemetryVersion = "2.10.0"
-val ibmMqVersion = "9.4.1.0"
+val opentelemetryVersion = "2.12.0"
+val ibmMqVersion = "9.4.1.1"
 
 plugins {
     id("application")
     kotlin("jvm") version "2.1.0"
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "7.0.2"
     id("com.gradleup.shadow") version "8.3.5"
 }
 
