@@ -20,7 +20,7 @@ val kotlinVersion = "2.1.10"
 val commonsCodecVersion = "1.18.0"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.7"
-val opentelemetryVersion = "2.13.0"
+val opentelemetryVersion = "2.13.1"
 val ibmMqVersion = "9.4.1.1"
 val nettyHandlerVersion = "4.1.118.Final"
 
