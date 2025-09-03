@@ -9,7 +9,7 @@ spec:
   image: {{ image }}
   replicas:
     min: 2
-    max: 4
+    max: 6
     scalingStrategy:
       cpu:
         thresholdPercentage: 90
@@ -40,7 +40,7 @@ spec:
     limits:
       memory: 1Gi
     requests:
-      cpu: 40m
+      cpu: 100m
       memory: 530Mi
   kafka:
     pool: nav-prod
