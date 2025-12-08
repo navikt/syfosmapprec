@@ -8,7 +8,7 @@ val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.9.1"
 val syfoXmlCodegenVersion = "2.0.1"
-val ktorVersion = "3.3.2"
+val ktorVersion = "3.3.3"
 val logbackVersion = "1.5.21"
 val logstashEncoderVersion = "9.0"
 val prometheusVersion = "0.16.0"
@@ -18,14 +18,14 @@ val kotlinVersion = "2.2.21"
 val commonsCodecVersion = "1.20.0"
 val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.8"
-val opentelemetryVersion = "2.21.0"
+val opentelemetryVersion = "2.22.0"
 val ibmMqVersion = "9.4.4.0"
 val nettyHandlerVersion = "4.2.7.Final"
 
 plugins {
     id("application")
     kotlin("jvm") version "2.2.21"
-    id("com.diffplug.spotless") version "8.0.0"
+    id("com.diffplug.spotless") version "8.1.0"
 }
 
 application {
