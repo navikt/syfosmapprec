@@ -3,12 +3,12 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.10.2"
 val javaxActivationVersion = "1.1.1"
-val jacksonVersion = "2.20.1"
+val jacksonVersion = "2.20.2"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.9.1"
 val syfoXmlCodegenVersion = "2.0.1"
-val ktorVersion = "3.3.2"
+val ktorVersion = "3.4.0"
 val logbackVersion = "1.5.21"
 val logstashEncoderVersion = "9.0"
 val prometheusVersion = "0.16.0"
@@ -20,7 +20,6 @@ val ktfmtVersion = "0.44"
 val snappyJavaVersion = "1.1.10.8"
 val opentelemetryVersion = "2.21.0"
 val ibmMqVersion = "9.4.4.0"
-val nettyHandlerVersion = "4.2.7.Final"
 
 plugins {
     id("application")
@@ -48,14 +47,6 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    {
-        constraints {
-            implementation("io.netty:netty-handler:$nettyHandlerVersion") {
-                because("Due to vulnerabilities in io.ktor:ktor-server-netty")
-            }
-        }
-    }
-
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
