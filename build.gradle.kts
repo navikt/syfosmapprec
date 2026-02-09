@@ -9,7 +9,7 @@ val jaxbVersion = "2.3.0.1"
 val kafkaVersion = "3.9.1"
 val syfoXmlCodegenVersion = "2.0.1"
 val ktorVersion = "3.4.0"
-val logbackVersion = "1.5.21"
+val logbackVersion = "1.5.26"
 val logstashEncoderVersion = "9.0"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "6.0.1"
@@ -17,7 +17,6 @@ val javaTimeAdapterVersion = "1.1.3"
 val kotlinVersion = "2.2.21"
 val commonsCodecVersion = "1.20.0"
 val ktfmtVersion = "0.44"
-val snappyJavaVersion = "1.1.10.8"
 val opentelemetryVersion = "2.21.0"
 val ibmMqVersion = "9.4.4.0"
 
@@ -47,15 +46,10 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    val logbackVersion = "1.5.26"
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
-    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    constraints {
-        implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion") {
-            because("override transient from org.apache.kafka:kafka_2.12")
-        }
-    }
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -67,7 +61,7 @@ dependencies {
     implementation("no.nav.helse.xml:kith-apprec:$syfoXmlCodegenVersion")
     implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
 
-    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("com.ibm.mq:com.ibm.mq.jakarta.client:$ibmMqVersion")
 
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
