@@ -3,27 +3,27 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.10.2"
 val javaxActivationVersion = "1.1.1"
-val jacksonVersion = "2.20.2"
+val jacksonVersion = "2.21.0"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val jaxbVersion = "2.3.0.1"
-val kafkaVersion = "3.9.1"
+val kafkaVersion = "4.1.1"
 val syfoXmlCodegenVersion = "2.0.1"
 val ktorVersion = "3.4.0"
 val logbackVersion = "1.5.26"
 val logstashEncoderVersion = "9.0"
 val prometheusVersion = "0.16.0"
-val junitJupiterVersion = "6.0.1"
+val junitJupiterVersion = "6.0.2"
 val javaTimeAdapterVersion = "1.1.3"
-val kotlinVersion = "2.2.21"
-val commonsCodecVersion = "1.20.0"
+val kotlinVersion = "2.3.0"
+val commonsCodecVersion = "1.21.0"
 val ktfmtVersion = "0.44"
-val opentelemetryVersion = "2.21.0"
-val ibmMqVersion = "9.4.4.0"
+val opentelemetryVersion = "2.24.0"
+val ibmMqVersion = "9.4.4.1"
 
 plugins {
     id("application")
-    kotlin("jvm") version "2.2.21"
-    id("com.diffplug.spotless") version "8.0.0"
+    kotlin("jvm") version "2.3.0"
+    id("com.diffplug.spotless") version "8.2.1"
 }
 
 application {
