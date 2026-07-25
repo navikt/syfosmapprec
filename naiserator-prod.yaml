@@ -40,7 +40,7 @@ spec:
       memory: 1Gi
     requests:
       cpu: 100m
-      memory: 590Mi
+      memory: 750Mi
   kafka:
     pool: nav-prod
   envFrom:
