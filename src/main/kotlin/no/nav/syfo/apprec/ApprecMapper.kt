@@ -53,7 +53,7 @@ fun createApprec(
                     ebRole = ApprecConstant.EBROLENAV.string
                     ebService = apprec.ebService
                     ebAction = ApprecConstant.EBACTIONSVARMELDING.string
-                },
+                }
             )
 
             any.add(
@@ -87,8 +87,8 @@ fun createApprec(
                             }
 
                         error.addAll(apprecErrors)
-                    },
-                ),
+                    }
+                )
             )
         }
 

@@ -1,11 +1,5 @@
 package no.nav.syfo
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.prometheus.client.hotspot.DefaultExports
 import jakarta.jms.MessageProducer
 import jakarta.jms.Session
@@ -46,15 +40,13 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 
 private val log = LoggerFactory.getLogger("no.nav.syfo.smapprec")
 
-val objectMapper: ObjectMapper =
-    ObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerKotlinModule()
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+val jsonMapper: JsonMapper = jacksonMapperBuilder().build()
 
 @DelicateCoroutinesApi
 fun main() {
@@ -64,11 +56,7 @@ fun main() {
         System.setProperty(key as String, value as String)
     }
     val applicationState = ApplicationState()
-    val applicationEngine =
-        createApplicationEngine(
-            env,
-            applicationState,
-        )
+    val applicationEngine = createApplicationEngine(env, applicationState)
 
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
 
@@ -76,21 +64,13 @@ fun main() {
 
     val consumerAivenProperties =
         KafkaUtils.getAivenKafkaConfig("apprec-consumer")
-            .toConsumerConfig(
-                "${env.applicationName}-consumer",
-                StringDeserializer::class,
-            )
+            .toConsumerConfig("${env.applicationName}-consumer", StringDeserializer::class)
             .also {
                 it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
                 it[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
             }
 
-    launchListeners(
-        applicationState,
-        env,
-        serviceUser,
-        consumerAivenProperties,
-    )
+    launchListeners(applicationState, env, serviceUser, consumerAivenProperties)
 
     applicationServer.start()
 }
@@ -98,7 +78,7 @@ fun main() {
 @DelicateCoroutinesApi
 fun createListener(
     applicationState: ApplicationState,
-    action: suspend CoroutineScope.() -> Unit
+    action: suspend CoroutineScope.() -> Unit,
 ): Job =
     GlobalScope.launch {
         try {
@@ -107,7 +87,7 @@ fun createListener(
             log.error(
                 "En uhåndtert feil oppstod, applikasjonen restarter {}",
                 fields(e.loggingMeta),
-                e.cause
+                e.cause,
             )
         } finally {
             applicationState.ready = false
@@ -123,9 +103,7 @@ fun launchListeners(
     consumerAivenProperties: Properties,
 ) {
     val kafkaAivenConsumerApprec = KafkaConsumer<String, String>(consumerAivenProperties)
-    kafkaAivenConsumerApprec.subscribe(
-        listOf(env.apprecTopic),
-    )
+    kafkaAivenConsumerApprec.subscribe(listOf(env.apprecTopic))
 
     createListener(applicationState) {
         connectionFactory(env)
@@ -155,13 +133,9 @@ suspend fun blockingApplicationLogic(
 ) {
     while (applicationState.ready) {
         kafkaAivenConsumer.poll(Duration.ofMillis(0)).forEach { consumerRecord ->
-            val apprec: Apprec = objectMapper.readValue(consumerRecord.value())
+            val apprec: Apprec = jsonMapper.readValue(consumerRecord.value())
 
-            val loggingMeta =
-                LoggingMeta(
-                    mottakId = apprec.ediloggid,
-                    msgId = apprec.msgId,
-                )
+            val loggingMeta = LoggingMeta(mottakId = apprec.ediloggid, msgId = apprec.msgId)
 
             handleMessage(apprec, receiptProducer, session, loggingMeta, "aiven", cluster)
         }
@@ -230,7 +204,7 @@ fun sendReceipt(
         session.createTextMessage().apply {
             val apprecFellesformat = createApprec(ediloggid, apprec, apprecStatus, apprecErrors)
             text = serializeAppRec(apprecFellesformat)
-        },
+        }
     )
     log.info("Apprec sendt til emottak, {}", fields(loggingMeta))
 }

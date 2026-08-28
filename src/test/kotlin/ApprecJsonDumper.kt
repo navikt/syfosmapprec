@@ -1,7 +1,3 @@
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.time.LocalDateTime
 import no.nav.syfo.apprec.Apprec
 import no.nav.syfo.apprec.ApprecStatus
@@ -9,13 +5,11 @@ import no.nav.syfo.apprec.Helsepersonell
 import no.nav.syfo.apprec.Ident
 import no.nav.syfo.apprec.Kodeverdier
 import no.nav.syfo.apprec.Organisation
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 
 fun main() {
-    val objectMapper: ObjectMapper =
-        ObjectMapper()
-            .registerModule(JavaTimeModule())
-            .registerKotlinModule()
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+    val jsonMapper: JsonMapper = jacksonMapperBuilder().build()
 
     val apprec =
         Apprec(
@@ -32,7 +26,7 @@ fun main() {
                     hovedIdent =
                         Ident(
                             id = "1234634567",
-                            typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")
+                            typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                         ),
                     navn = "Testlegesenteret",
                     tilleggsIdenter =
@@ -43,9 +37,9 @@ fun main() {
                                     Kodeverdier(
                                         beskrivelse =
                                             "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
-                                        verdi = "ENH"
+                                        verdi = "ENH",
                                     ),
-                            ),
+                            )
                         ),
                     helsepersonell =
                         Helsepersonell(
@@ -53,7 +47,7 @@ fun main() {
                             hovedIdent =
                                 Ident(
                                     id = "1234356",
-                                    typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")
+                                    typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                                 ),
                             typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                             tilleggsIdenter =
@@ -63,13 +57,13 @@ fun main() {
                                         typeId =
                                             Kodeverdier(
                                                 beskrivelse = "Fødselsnummer",
-                                                verdi = "FNR"
-                                            )
+                                                verdi = "FNR",
+                                            ),
                                     ),
                                     Ident(
                                         id = "12343568",
                                         typeId =
-                                            Kodeverdier(beskrivelse = "HPR-nummer", verdi = "HPR")
+                                            Kodeverdier(beskrivelse = "HPR-nummer", verdi = "HPR"),
                                     ),
                                 ),
                         ),
@@ -79,7 +73,7 @@ fun main() {
                     hovedIdent =
                         Ident(
                             id = "1234556",
-                            typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER")
+                            typeId = Kodeverdier(beskrivelse = "HER-id", verdi = "HER"),
                         ),
                     navn = "NAV IKT",
                     tilleggsIdenter =
@@ -90,14 +84,14 @@ fun main() {
                                     Kodeverdier(
                                         beskrivelse =
                                             "Organisasjonsnummeret i Enhetsregister (Brønnøysund)",
-                                        verdi = "ENH"
+                                        verdi = "ENH",
                                     ),
-                            ),
+                            )
                         ),
                 ),
             validationResult = null,
             ebService = "Sykmelding",
         )
 
-    println(objectMapper.writeValueAsString(apprec))
+    println(jsonMapper.writeValueAsString(apprec))
 }

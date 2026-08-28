@@ -1,10 +1,5 @@
 package no.nav.syfo.apprec
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.StringReader
 import java.time.LocalDateTime
 import javax.xml.bind.JAXBContext
@@ -17,28 +12,27 @@ import no.nav.syfo.serializeAppRec
 import no.nav.syfo.util.getDateTimeString
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 
 internal class ApprecMapperTest {
-    private val objectMapper: ObjectMapper =
-        ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val jsonMapper: JsonMapper = jacksonMapperBuilder().build()
 
     private val apprec: Apprec =
-        objectMapper.readValue(
+        jsonMapper.readValue(
             Apprec::class
                 .java
                 .getResourceAsStream("/apprecOK.json")!!
                 .readBytes()
-                .toString(Charsets.UTF_8),
+                .toString(Charsets.UTF_8)
         )
 
     private val apprecUnmarshaller: Unmarshaller =
         JAXBContext.newInstance(
                 XMLEIFellesformat::class.java,
                 XMLAppRec::class.java,
-                XMLMottakenhetBlokk::class.java
+                XMLMottakenhetBlokk::class.java,
             )
             .createUnmarshaller()
 
@@ -50,16 +44,11 @@ internal class ApprecMapperTest {
     internal fun `Duplicate AppRec has the same ediLoggId as the source`() {
         val apprecErrorDuplicate =
             createApprecError(
-                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt."
             )
         val ff =
             marshalAndUnmarshal(
-                createApprec(
-                    apprec.ediloggid,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    listOf(),
-                ),
+                createApprec(apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf())
             )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         Assertions.assertEquals(apprec.ediloggid, ff.get<XMLMottakenhetBlokk>().ediLoggId)
@@ -69,16 +58,11 @@ internal class ApprecMapperTest {
     internal fun `Duplicate AppRec sets appRec status dn to Avvist`() {
         val apprecErrorDuplicate =
             createApprecError(
-                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt."
             )
         val ff =
             marshalAndUnmarshal(
-                createApprec(
-                    apprec.ediloggid,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    listOf(),
-                ),
+                createApprec(apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf())
             )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         Assertions.assertEquals(ApprecStatus.AVVIST.dn, ff.get<XMLAppRec>().status.dn)
@@ -88,16 +72,11 @@ internal class ApprecMapperTest {
     internal fun `Duplicate AppRec sets appRec error v to duplicate`() {
         val apprecErrorDuplicate =
             createApprecError(
-                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt."
             )
         val ff =
             marshalAndUnmarshal(
-                createApprec(
-                    apprec.ediloggid,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    listOf(),
-                ),
+                createApprec(apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf())
             )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         Assertions.assertEquals(apprecErrorDuplicate.v, ff.get<XMLAppRec>().error.first().v)
@@ -107,16 +86,11 @@ internal class ApprecMapperTest {
     internal fun `Duplicate AppRec sets appRec error s to duplicate`() {
         val apprecErrorDuplicate =
             createApprecError(
-                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+                "Duplikat! - Denne sykmeldingen er mottatt tidligere. Skal ikke sendes på nytt."
             )
         val ff =
             marshalAndUnmarshal(
-                createApprec(
-                    apprec.ediloggid,
-                    apprec,
-                    ApprecStatus.AVVIST,
-                    listOf(),
-                ),
+                createApprec(apprec.ediloggid, apprec, ApprecStatus.AVVIST, listOf())
             )
         ff.get<XMLAppRec>().error.add(apprecErrorDuplicate)
         Assertions.assertEquals(apprecErrorDuplicate.s, ff.get<XMLAppRec>().error.first().s)
@@ -134,11 +108,11 @@ internal class ApprecMapperTest {
                     ),
                     ApprecStatus.OK,
                     listOf(),
-                ),
+                )
             )
         Assertions.assertEquals(
             "2021-03-03T12:01:01+01:00",
-            apprecWithMsgGenDate.get<XMLAppRec>().originalMsgId.issueDate
+            apprecWithMsgGenDate.get<XMLAppRec>().originalMsgId.issueDate,
         )
     }
 
@@ -151,11 +125,11 @@ internal class ApprecMapperTest {
                     apprec.copy(genDate = LocalDateTime.parse("2021-03-03T12:02:02")),
                     ApprecStatus.OK,
                     listOf(),
-                ),
+                )
             )
         Assertions.assertEquals(
             "2021-03-03T12:02:02",
-            apprecWithoutMsgGenDate.get<XMLAppRec>().originalMsgId.issueDate
+            apprecWithoutMsgGenDate.get<XMLAppRec>().originalMsgId.issueDate,
         )
     }
 
@@ -165,7 +139,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             ApprecConstant.EBROLENAV.string,
-            ff.get<XMLMottakenhetBlokk>().ebRole
+            ff.get<XMLMottakenhetBlokk>().ebRole,
         )
     }
 
@@ -182,7 +156,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             ApprecConstant.EBACTIONSVARMELDING.string,
-            ff.get<XMLMottakenhetBlokk>().ebAction
+            ff.get<XMLMottakenhetBlokk>().ebAction,
         )
     }
 
@@ -199,7 +173,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             ApprecConstant.APPRECVERSIONV1_0.string,
-            ff.get<XMLAppRec>().miGversion
+            ff.get<XMLAppRec>().miGversion,
         )
     }
 
@@ -216,7 +190,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             apprec.senderOrganisasjon.navn,
-            ff.get<XMLAppRec>().sender.hcp.inst.name
+            ff.get<XMLAppRec>().sender.hcp.inst.name,
         )
     }
 
@@ -226,7 +200,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             apprec.senderOrganisasjon.hovedIdent.id,
-            ff.get<XMLAppRec>().sender.hcp.inst.id
+            ff.get<XMLAppRec>().sender.hcp.inst.id,
         )
     }
 
@@ -236,7 +210,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             apprec.senderOrganisasjon.hovedIdent.typeId.beskrivelse,
-            ff.get<XMLAppRec>().sender.hcp.inst.typeId.dn
+            ff.get<XMLAppRec>().sender.hcp.inst.typeId.dn,
         )
     }
 
@@ -246,7 +220,7 @@ internal class ApprecMapperTest {
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
         Assertions.assertEquals(
             apprec.senderOrganisasjon.hovedIdent.typeId.verdi,
-            ff.get<XMLAppRec>().sender.hcp.inst.typeId.v
+            ff.get<XMLAppRec>().sender.hcp.inst.typeId.v,
         )
     }
 
@@ -334,20 +308,14 @@ internal class ApprecMapperTest {
     internal fun `OK AppRec sets appRec status dn to OK`() {
         val ff =
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(
-            ApprecStatus.OK.dn,
-            ff.get<XMLAppRec>().status.dn,
-        )
+        Assertions.assertEquals(ApprecStatus.OK.dn, ff.get<XMLAppRec>().status.dn)
     }
 
     @Test
     internal fun `OK AppRec sets appRec status v to OK`() {
         val ff =
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(
-            ApprecStatus.OK.v,
-            ff.get<XMLAppRec>().status.v,
-        )
+        Assertions.assertEquals(ApprecStatus.OK.v, ff.get<XMLAppRec>().status.v)
     }
 
     @Test
@@ -364,10 +332,7 @@ internal class ApprecMapperTest {
     internal fun `OK AppRec sets appRec originalMsgId v`() {
         val ff =
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(
-            "SYKMELD",
-            ff.get<XMLAppRec>().originalMsgId.msgType.v,
-        )
+        Assertions.assertEquals("SYKMELD", ff.get<XMLAppRec>().originalMsgId.msgType.v)
     }
 
     @Test
@@ -384,10 +349,7 @@ internal class ApprecMapperTest {
     internal fun `OK AppRec sets appRec originalMsgId to msgid`() {
         val ff =
             marshalAndUnmarshal(createApprec(apprec.ediloggid, apprec, ApprecStatus.OK, listOf()))
-        Assertions.assertEquals(
-            apprec.msgId,
-            ff.get<XMLAppRec>().originalMsgId.id,
-        )
+        Assertions.assertEquals(apprec.msgId, ff.get<XMLAppRec>().originalMsgId.id)
     }
 
     @Test
@@ -400,10 +362,7 @@ internal class ApprecMapperTest {
             )
         ff.get<XMLAppRec>().error.add(apprecErrorinvalidFnrSize)
 
-        Assertions.assertEquals(
-            apprecErrorinvalidFnrSize.dn,
-            ff.get<XMLAppRec>().error.first().dn,
-        )
+        Assertions.assertEquals(apprecErrorinvalidFnrSize.dn, ff.get<XMLAppRec>().error.first().dn)
     }
 
     @Test
@@ -416,10 +375,7 @@ internal class ApprecMapperTest {
             )
         ff.get<XMLAppRec>().error.add(apprecErrorinvalidFnrSize)
 
-        Assertions.assertEquals(
-            apprecErrorinvalidFnrSize.v,
-            ff.get<XMLAppRec>().error.first().v,
-        )
+        Assertions.assertEquals(apprecErrorinvalidFnrSize.v, ff.get<XMLAppRec>().error.first().v)
     }
 
     @Test
@@ -432,9 +388,6 @@ internal class ApprecMapperTest {
             )
         ff.get<XMLAppRec>().error.add(apprecErrorinvalidFnrSize)
 
-        Assertions.assertEquals(
-            apprecErrorinvalidFnrSize.s,
-            ff.get<XMLAppRec>().error.first().s,
-        )
+        Assertions.assertEquals(apprecErrorinvalidFnrSize.s, ff.get<XMLAppRec>().error.first().s)
     }
 }

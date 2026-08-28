@@ -14,7 +14,7 @@ This project creates and sends an apprec message to eMottak, which in turn sends
 
 #### Requirements
 
-* JDK 21
+* JDK 25
 
 ## Getting started
 ### Building the application
