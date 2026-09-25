@@ -17,12 +17,12 @@ val javaTimeAdapterVersion = "1.1.3"
 val commonsCodecVersion = "1.20.0"
 val ktfmtVersion = "0.56"
 val opentelemetryVersion = "2.21.0"
-val ibmMqVersion = "10.0.0.0"
+val ibmMqVersion = "10.0.0.5"
 
 plugins {
     id("application")
-    kotlin("jvm") version "2.4.10"
-    id("com.diffplug.spotless") version "8.10.0"
+    kotlin("jvm") version "2.4.20"
+    id("com.diffplug.spotless") version "8.10.2"
 }
 
 application {
