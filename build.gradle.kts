@@ -19,6 +19,9 @@ val ktfmtVersion = "0.56"
 val opentelemetryVersion = "2.21.0"
 val ibmMqVersion = "10.0.0.5"
 
+// Included due vulnerabilities in this transitive dependency
+val bcprovJdk18onVersion = "1.86"
+
 plugins {
     id("application")
     kotlin("jvm") version "2.4.20"
@@ -59,6 +62,11 @@ dependencies {
     implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
 
     implementation("com.ibm.mq:com.ibm.mq.jakarta.client:$ibmMqVersion")
+    constraints {
+        implementation("org.bouncycastle:bcprov-jdk18on:$bcprovJdk18onVersion") {
+            because("Due to this transitive dependency vulnerability inside of com.ibm.mq:com.ibm.mq.jakarta.client")
+        }
+    }
 
     implementation("com.migesok:jaxb-java-time-adapters:$javaTimeAdapterVersion")
 
