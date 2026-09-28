@@ -1,7 +1,7 @@
 group = "no.nav.syfo"
 version = "1.0.0"
 
-val coroutinesVersion = "1.10.2"
+val coroutinesVersion = "1.11.0"
 val javaxActivationVersion = "1.1.1"
 val jacksonVersion = "3.2.2"
 val jaxbApiVersion = "2.4.0-b180830.0359"
@@ -14,9 +14,9 @@ val logstashEncoderVersion = "9.0"
 val prometheusVersion = "0.16.0"
 val junitJupiterVersion = "6.1.3"
 val javaTimeAdapterVersion = "1.1.3"
-val commonsCodecVersion = "1.20.0"
+val commonsCodecVersion = "1.22.1"
 val ktfmtVersion = "0.56"
-val opentelemetryVersion = "2.21.0"
+val opentelemetryVersion = "2.31.1"
 val ibmMqVersion = "10.0.0.5"
 
 // Included due vulnerabilities in this transitive dependency
