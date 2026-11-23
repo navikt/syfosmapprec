@@ -17,7 +17,7 @@ val javaTimeAdapterVersion = "1.1.3"
 val commonsCodecVersion = "1.20.0"
 val ktfmtVersion = "0.56"
 val opentelemetryVersion = "2.21.0"
-val ibmMqVersion = "10.0.0.5"
+val ibmMqVersion = "10.0.1.0"
 
 // Included due vulnerabilities in this transitive dependency
 val bcprovJdk18onVersion = "1.86"
